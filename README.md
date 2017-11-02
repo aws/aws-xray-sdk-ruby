@@ -1,2 +1,5 @@
-# aws-xray-sdk-ruby
-The official AWS X-Ray Recorder SDK for Ruby
+AWS Xray SDK Ruby
+
+## License
+
+This library is licensed under the Apache 2.0 License. 
