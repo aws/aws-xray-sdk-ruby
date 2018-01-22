@@ -110,4 +110,26 @@ class TestAwsSdk < Minitest::Test
     assert_equal 'Timeout::Error', ex_h[:message]
     assert_equal 'Timeout::Error', ex_h[:type]
   end
+
+  def test_log_error_pass_through
+    recorder = XRay::Recorder.new
+    config = {
+      sampling: false,
+      emitter: XRay::TestHelper::StubbedEmitter.new,
+      patch: %I[aws_sdk],
+      context_missing: 'LOG_ERROR'
+    }
+    recorder.configure(config)
+    Aws.config.update xray_recorder: recorder
+
+    s3 = Aws::S3::Client.new(stub_responses: true)
+    bucket_data = s3.stub_data(:list_buckets, buckets: [{ name: '1' }])
+    s3.stub_responses(:list_buckets, bucket_data)
+    resp = s3.list_buckets
+
+    # nothing should be sent
+    assert_nil recorder.emitter.entities
+    # s3 call is executed
+    assert_equal '1', resp.buckets[0].name
+  end
 end

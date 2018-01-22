@@ -18,6 +18,10 @@ module XRay
 
       def call(context)
         recorder = Aws.config[:xray_recorder]
+        if recorder.current_entity.nil?
+          super
+        end
+
         operation = context.operation_name
         service_name = context.client.class.api.metadata['serviceAbbreviation'] ||
                        context.client.class.to_s.split('::')[1]

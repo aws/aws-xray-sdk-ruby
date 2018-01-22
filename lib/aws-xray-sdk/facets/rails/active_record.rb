@@ -20,6 +20,8 @@ module XRay
           db_config = pool.spec.config
           name, sql = build_name_sql_meta config: db_config, conn: conn
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
+          # subsegment is nil in case of context missing
+          return if subsegment.nil?
           subsegment.start_time = transaction.time.to_f
           subsegment.sql = sql
           XRay.recorder.end_subsegment end_time: transaction.end.to_f

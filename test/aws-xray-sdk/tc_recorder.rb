@@ -132,12 +132,26 @@ class TestRecorder < Minitest::Test
 
   def test_context_missing_passthrough
     recorder = XRay::Recorder.new
-    recorder.config.context_missing = 'LOG_ERROR'
+    config = {
+      sampling: false,
+      context_missing: 'LOG_ERROR',
+      emitter: XRay::TestHelper::StubbedEmitter.new
+    }
+    recorder.configure(config)
+
     recorder.annotations[:k] = 1
     recorder.sampled? do
       recorder.annotations.update k2: 2
       recorder.metadata.update k3: 3
     end
     recorder.metadata[:foo] = 'bar'
+
+    v = recorder.capture(name) do |subsegment|
+      subsegment.annotations[:k] = '1'
+      1
+    end
+
+    assert_equal 1, v
+    assert_nil recorder.emitter.entities
   end
 end

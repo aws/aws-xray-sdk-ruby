@@ -7,9 +7,13 @@ Gem::Specification.new do |spec|
   spec.version       = XRay::VERSION
   spec.author        = 'Amazon Web Services'
   spec.email         = 'aws-xray-ruby@amazon.com'
+
   spec.summary       = 'AWS X-Ray SDK for Ruby'
   spec.description   = 'The AWS X-Ray SDK for Ruby enables Ruby developers to record and emit information from within their applications to the AWS X-Ray service.'
   spec.homepage      = 'https://github.com/aws/aws-xray-sdk-ruby'
+
+  spec.required_ruby_version = '>= 2.3.6'
+
   spec.license       = 'Apache-2.0'
 
   spec.files         = Dir.glob('lib/**/*')

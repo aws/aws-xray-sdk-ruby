@@ -57,7 +57,8 @@ module XRay
     # Begin a new subsegment and add it to be the child of the current active
     # subsegment or segment. Also tie the new created subsegment to the current context.
     # Its sampling decision will follow its parent.
-    # @return [Subsegment] the newly created subsegment.
+    # @return [Subsegment] the newly created subsegment. It could be `nil` if no active entity
+    #   can be found and `context_missing` is set to `LOG_ERROR`.
     def begin_subsegment(name, namespace: nil, segment: nil)
       entity = segment || current_entity
       return unless entity
@@ -104,8 +105,16 @@ module XRay
     end
 
     # Record the passed block as a subsegment.
+    # If `context_missing` is set to `LOG_ERROR` and no active entity can be found,
+    # the passed block will be executed as normal but it will not be recorded.
     def capture(name, namespace: nil, segment: nil)
       subsegment = begin_subsegment name, namespace: namespace, segment: segment
+      # prevent passed block from failing in case of context missing with log error
+      if subsegment.nil?
+        segment = DummySegment.new name: name
+        subsegment = DummySubsegment.new name: name, segment: segment
+      end
+
       begin
         yield subsegment
       rescue Exception => e
