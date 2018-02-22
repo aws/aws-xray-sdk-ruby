@@ -44,6 +44,7 @@ module XRay
                 content_length: res.content_length
               }
               subsegment.merge_http_response response: res_meta
+              res
             rescue Exception => e
               subsegment.add_exception exception: e
               raise e

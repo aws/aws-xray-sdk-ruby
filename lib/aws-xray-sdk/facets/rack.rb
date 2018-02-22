@@ -75,12 +75,10 @@ module XRay
         req_meta
       end
 
-      def get_ip(ips)
-        if ips.respond_to?(:length)
-          ips[ips.length - 1]
-        else
-          ips
-        end
+      # get the last ip from header string
+      def get_ip(v)
+        ips = v.split(',')
+        ips[ips.length - 1]
       end
     end
   end
