@@ -6,7 +6,7 @@ module XRay
   class Railtie < ::Rails::Railtie
     RAILS_OPTIONS = %I[active_record].freeze
 
-    initializer "aws-xray-sdk.rack_middleware" do |app|
+    initializer("aws-xray-sdk.rack_middleware") do |app|
       app.middleware.insert 0, Rack::Middleware
       app.middleware.use XRay::Rails::ExceptionMiddleware
     end

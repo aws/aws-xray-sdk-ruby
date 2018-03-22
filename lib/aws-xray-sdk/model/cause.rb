@@ -1,4 +1,4 @@
-require 'oj'
+require 'multi_json'
 
 module XRay
   # Represents cause section in segment and subsegment document.
@@ -26,7 +26,7 @@ module XRay
 
     def to_json
       @to_json ||= begin
-        Oj.dump to_h, mode: :compat, use_as_json: true
+        MultiJson.dump to_h
       end
     end
 

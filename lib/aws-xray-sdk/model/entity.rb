@@ -1,6 +1,6 @@
 require 'securerandom'
 require 'bigdecimal'
-require 'oj'
+require 'multi_json'
 require 'aws-xray-sdk/exceptions'
 require 'aws-xray-sdk/model/cause'
 require 'aws-xray-sdk/model/annotations'
@@ -168,7 +168,7 @@ module XRay
 
     def to_json
       @to_json ||= begin
-        Oj.dump to_h, mode: :compat, use_as_json: true
+        MultiJson.dump(to_h)
       end
     end
 
