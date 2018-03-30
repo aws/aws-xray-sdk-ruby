@@ -5,6 +5,7 @@ require 'aws-xray-sdk/model/subsegment'
 require 'aws-xray-sdk/model/dummy_entities'
 require 'aws-xray-sdk/model/annotations'
 require 'aws-xray-sdk/model/metadata'
+require 'aws-xray-sdk/version'
 
 module XRay
   # A global AWS X-Ray recorder that will begin/end segments/subsegments
@@ -204,15 +205,31 @@ module XRay
     private_class_method
 
     def populate_runtime_context(segment)
-      aws = {}
-      config.plugins.each do |p|
-        meta = p.aws
-        if meta.is_a?(Hash) && !meta.empty?
-          aws.merge! meta
-          segment.origin = p::ORIGIN
+      @aws ||= begin
+        aws = {}
+        config.plugins.each do |p|
+          meta = p.aws
+          if meta.is_a?(Hash) && !meta.empty?
+            aws.merge! meta
+            segment.origin = p::ORIGIN
+          end
         end
+        xray_meta = { xray:
+          {
+            sdk_version: XRay::VERSION,
+            sdk: 'X-Ray for Ruby'
+          }
+        }
+        aws.merge! xray_meta
       end
-      segment.aws = aws unless aws.empty?
+
+      @service ||= {
+        runtime: RUBY_ENGINE,
+        runtime_version: RUBY_VERSION
+      }
+
+      segment.aws = @aws
+      segment.service = @service
     end
   end
 end

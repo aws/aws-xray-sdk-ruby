@@ -1,6 +1,9 @@
 require_relative '../test_helper'
+require 'webmock/minitest'
 require 'aws-xray-sdk/recorder'
 require 'aws-xray-sdk/exceptions'
+require 'aws-xray-sdk/version'
+require 'aws-xray-sdk/plugins/ec2'
 
 # Test global X-Ray recorder
 class TestRecorder < Minitest::Test
@@ -128,6 +131,40 @@ class TestRecorder < Minitest::Test
     subsegment = sent_entity.subsegments[0]
     assert_equal 'my_sub', subsegment.name
     assert_equal segment.id, subsegment.parent.id
+  end
+
+  def test_xray_metadata
+    segment = @@recorder.begin_segment name
+    xray_meta = segment.to_h[:aws][:xray]
+    assert_equal 'X-Ray for Ruby', xray_meta[:sdk]
+    assert_equal XRay::VERSION, xray_meta[:sdk_version]
+
+    service_meta = segment.to_h[:service]
+    assert service_meta[:runtime]
+    assert service_meta[:runtime_version]
+  end
+
+  def test_plugins_runtime_context
+    stub_request(:any, XRay::Plugins::EC2::ID_ADDR)
+      .to_return(body: 'some_id', status: 200)
+    stub_request(:any, XRay::Plugins::EC2::AZ_ADDR)
+      .to_return(body: 'some_az', status: 200)
+
+    recorder = XRay::Recorder.new
+    config = {
+      sampling: false,
+      emitter: XRay::TestHelper::StubbedEmitter.new,
+      plugins: %I[ecs ec2]
+    }
+    recorder.configure(config)
+    segment = recorder.begin_segment name
+
+    aws_meta = segment.to_h[:aws]
+    assert aws_meta[:ecs]
+    assert aws_meta[:ec2]
+    assert_equal XRay::Plugins::EC2::ORIGIN, segment.origin
+
+    WebMock.reset!
   end
 
   def test_context_missing_passthrough

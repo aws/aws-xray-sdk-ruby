@@ -6,7 +6,7 @@ module XRay
   # details about the request, and details about the work done.
   class Segment
     include Entity
-    attr_accessor :ref_counter, :subsegment_size, :origin, :user
+    attr_accessor :ref_counter, :subsegment_size, :origin, :user, :service
 
     # @param [String] trace_id Manually crafted trace id.
     # @param [String] name Must be specified either on object creation or
@@ -53,6 +53,7 @@ module XRay
       h[:origin] = origin if origin
       h[:parent_id] = @parent_id if @parent_id
       h[:user] = user if user
+      h[:service] = service if service
       h
     end
 

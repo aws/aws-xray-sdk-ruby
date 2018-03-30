@@ -1,3 +1,7 @@
+0.10.2 (2018-03-30)
+-------------------
+* Feature - Added SDK and Ruby runtime information to sampled segments.
+
 0.10.1 (2018-02-21)
 -------------------
 * Bugfix - Fixed an issue where patched net/http returns incorrect reponse object. [ISSUE#2](https://github.com/aws/aws-xray-sdk-ruby/issues/2)
