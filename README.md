@@ -4,13 +4,15 @@
 
 ## Installing
 
-The AWS X-Ray SDK for Ruby is compatible with Ruby 2.3.6 and newer Ruby versions.
+The AWS X-Ray SDK for Ruby is compatible with Ruby 2.3.6 and newer Ruby versions. It has experimental support for JRuby 9.2.0.0 (still forthcoming).
 
-To install the Ruby gem for your project, add it to your project Gemfile.
+To install the Ruby gem for your project, add it to your project Gemfile. You must also add either the [Oj](https://github.com/ohler55/oj) or [JrJackson](https://github.com/guyboertje/jrjackson) gems, for MRI and JRuby respectively, for JSON parsing. The default JSON parser will not work properly, currently.
 
 ```
 # Gemfile
 gem 'aws-xray-sdk'
+gem 'oj', platform: :mri
+gem 'jrjackson', platform: :jruby
 ```
 Then run `bundle install`.
 
@@ -28,7 +30,7 @@ issues for tracking bugs and feature requests.
 If you encounter a bug with the AWS X-Ray SDK for Ruby, we want to hear about
 it. Before opening a new issue, search the [existing issues](https://github.com/aws/aws-xray-sdk-ruby/issues)
 to see if others are also experiencing the issue. Include the version of the AWS X-Ray
-SDK for Ruby, Ruby language, and other gems if applicable. In addition, 
+SDK for Ruby, Ruby language, and other gems if applicable. In addition,
 include the repro case when appropriate.
 
 The GitHub issues are intended for bug reports and feature requests. For help and

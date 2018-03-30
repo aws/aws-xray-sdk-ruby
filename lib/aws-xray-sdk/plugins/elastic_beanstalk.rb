@@ -1,4 +1,4 @@
-require 'oj'
+require 'multi_json'
 require 'aws-xray-sdk/logger'
 
 module XRay
@@ -14,7 +14,7 @@ module XRay
       def self.aws
         @@aws ||= begin
           file = File.open(CONF_PATH)
-          { elastic_beanstalk: Oj.load(file) }
+          { elastic_beanstalk: MultiJson.load(file) }
         rescue StandardError => e
           @@aws = {}
           Logging.logger.warn %(can not get the environment config due to: #{e.message}.)

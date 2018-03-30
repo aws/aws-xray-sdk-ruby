@@ -25,7 +25,7 @@ module XRay
         operation = context.operation_name
         service_name = context.client.class.api.metadata['serviceAbbreviation'] ||
                        context.client.class.to_s.split('::')[1]
-        recorder.capture service_name, namespace: 'aws' do |subsegment|
+        recorder.capture(service_name, namespace: 'aws') do |subsegment|
           # inject header string before calling downstream AWS services
           context.http_request.headers[TRACE_HEADER] = prep_header_str entity: subsegment
           response = @handler.call(context)
