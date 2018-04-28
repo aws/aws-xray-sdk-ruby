@@ -1,0 +1,14 @@
+language: ruby
+
+rvm:
+  - 2.3
+  - 2.4
+  - 2.5
+
+sudo: false
+
+install:
+  - bundle install
+
+script:
+  - rake test
