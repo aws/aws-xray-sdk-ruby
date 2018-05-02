@@ -9,17 +9,4 @@ class TestEmitter < Minitest::Test
     emitter = XRay::DefaultEmitter.new
     emitter.send_entity entity: segment
   end
-
-  def test_invalid_daemon_address
-    segment = XRay::Segment.new name: name
-    segment.close
-    assert_raises XRay::InvalidDaemonAddressError do
-      emitter = XRay::DefaultEmitter.new
-      emitter.daemon_address = 'blah'
-    end
-    assert_raises XRay::InvalidDaemonAddressError do
-      emitter = XRay::DefaultEmitter.new
-      emitter.daemon_address = '127.0.0.1'
-    end
-  end
 end
