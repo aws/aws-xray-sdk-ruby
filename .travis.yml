@@ -3,7 +3,7 @@ language: ruby
 rvm:
   - 2.4
   - 2.5
-  - tip
+  - 2.6
 
 sudo: false
 
@@ -15,4 +15,4 @@ script:
 
 matrix:
   allow_failures:
-    - rvm: tip
+    - rvm: 2.6
