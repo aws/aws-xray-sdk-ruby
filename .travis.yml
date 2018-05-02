@@ -3,6 +3,7 @@ language: ruby
 rvm:
   - 2.4
   - 2.5
+  - tip
 
 sudo: false
 
@@ -11,3 +12,7 @@ install:
 
 script:
   - rake test
+
+matrix:
+  allow_failures:
+    - rvm: tip
