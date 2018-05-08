@@ -1,0 +1,18 @@
+language: ruby
+
+rvm:
+  - 2.4
+  - 2.5
+  - 2.6
+
+sudo: false
+
+install:
+  - bundle install
+
+script:
+  - rake test
+
+matrix:
+  allow_failures:
+    - rvm: 2.6

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/aws/aws-xray-sdk-ruby.svg?branch=master)](https://travis-ci.org/aws/aws-xray-sdk-ruby)
+
 # AWS X-Ray SDK for Ruby <sup><sup><sup>(beta)</sup></sup></sup>
 
 ![Screenshot of the AWS X-Ray console](/images/example_servicemap.png?raw=true)
