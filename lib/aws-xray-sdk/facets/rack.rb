@@ -8,6 +8,7 @@ module XRay
     class Middleware
       include XRay::Facets::Helper
       X_FORWARD = 'HTTP_X_FORWARDED_FOR'.freeze
+      SCHEME_SEPARATOR = "://".freeze
 
       def initialize(app, recorder: nil)
         @app = app
@@ -63,7 +64,9 @@ module XRay
 
       def extract_request_meta(req)
         req_meta = {}
-        req_meta[:url] = req.url if req.url
+        req_meta[:url] = req.scheme + SCHEME_SEPARATOR if req.scheme
+        req_meta[:url] += req.host_with_port if req.host_with_port
+        req_meta[:url] += req.path if req.path
         req_meta[:user_agent] = req.user_agent if req.user_agent
         req_meta[:method] = req.request_method if req.request_method
         if req.has_header?(X_FORWARD)
