@@ -19,7 +19,7 @@ module XRay
       def call(context)
         recorder = Aws.config[:xray_recorder]
         if recorder.current_entity.nil?
-          super
+          return super
         end
 
         operation = context.operation_name
