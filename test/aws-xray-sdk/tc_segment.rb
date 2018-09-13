@@ -98,6 +98,28 @@ class TestSegment < Minitest::Test
     assert_equal 'NaN', at_h[:k4]
   end
 
+  def test_sampling_rule_name
+    sdk = 'ruby'
+    aws = {
+      xray: {
+        sdk: sdk
+      }
+    }
+    segment1 = XRay::Segment.new name: 'seg1'
+    segment2 = XRay::Segment.new name: 'seg2'
+
+    segment1.aws = aws
+    segment2.aws = aws
+
+    segment1.sampling_rule_name = 'rule1'
+    segment2.sampling_rule_name = 'rule2'
+
+    assert segment1.aws[:xray][:sdk] = sdk
+    assert segment1.aws[:xray][:sampling_rule_name] = 'rule1'
+    assert segment2.aws[:xray][:sdk] = sdk
+    assert segment2.aws[:xray][:sampling_rule_name] = 'rule2'
+  end
+
   def test_add_subsegment
     segment = XRay::Segment.new name: name
     subsegment = XRay::Subsegment.new name: name, segment: segment

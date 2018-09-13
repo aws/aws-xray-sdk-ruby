@@ -1,7 +1,8 @@
 require_relative '../test_helper'
 require 'aws-xray-sdk'
-require 'aws-sdk-s3'
 require 'aws-sdk-dynamodb'
+require 'aws-sdk-s3'
+require 'aws-sdk-xray'
 
 # Test subsegments recording on AWS Ruby SDK
 class TestAwsSdk < Minitest::Test
@@ -96,7 +97,19 @@ class TestAwsSdk < Minitest::Test
     assert_equal mocked_resp[:consumed_capacity], aws_meta[:consumed_capacity]
   end
 
-  def test_capiture_client_error
+  def test_not_capture_sampling_calls
+    xray = Aws::XRay::Client.new(stub_responses: true)
+
+    rules_resp = xray.stub_data(:get_sampling_rules, {})
+    xray.stub_responses(:get_sampling_rules, rules_resp)
+    xray.get_sampling_rules
+
+    targets_resp = xray.stub_data(:get_sampling_targets, {})
+    xray.stub_responses(:get_sampling_targets, targets_resp)
+    xray.get_sampling_targets sampling_statistics_documents: {}
+  end
+
+  def test_capture_client_error
     @@recorder.begin_segment name
     s3 = Aws::S3::Client.new(stub_responses: true)
     s3.stub_responses(:head_bucket, Timeout::Error)
@@ -131,5 +144,6 @@ class TestAwsSdk < Minitest::Test
     assert_nil recorder.emitter.entities
     # s3 call is executed
     assert_equal '1', resp.buckets[0].name
+    recorder.context.clear!
   end
 end

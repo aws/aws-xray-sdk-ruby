@@ -26,21 +26,14 @@ module XRay
       # the highest precedence. If the `trace_header` doesn't contain
       # sampling decision then it checks if sampling is enabled or not
       # in the recorder. If not enbaled it returns 'true'. Otherwise it uses
-      # sampling rule to decide.
-      def should_sample?(header_obj:, recorder:,
-                         host: nil, method: nil, path: nil,
-                         **args)
+      # sampling rules to decide.
+      def should_sample?(header_obj:, recorder:, sampling_req:, **args)
         # check outside decision
         if i = header_obj.sampled
-          if i.zero?
-            false
-          else
-            true
-          end
+          !i.zero?
         # check sampling rules
         elsif recorder.sampling_enabled?
-          recorder.sampler.sample_request?(service_name: host, url_path: path,
-                                           http_method: method)
+          recorder.sampler.sample_request?(sampling_req)
         # sample if no reason not to
         else
           true

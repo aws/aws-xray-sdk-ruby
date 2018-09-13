@@ -12,11 +12,12 @@ module XRay
   # and send them to the X-Ray daemon. It is also responsible for managing
   # context.
   class Recorder
-    attr_reader :config
+    attr_reader :config, :origin
 
     def initialize(user_config: nil)
       @config = Configuration.new
       @config.configure(user_config) unless user_config.nil?
+      @origin = nil
     end
 
     # Begin a segment for the current context. The recorder
@@ -31,7 +32,7 @@ module XRay
       sample = sampled.nil? ? config.sample? : sampled
       if sample
         segment = Segment.new name: seg_name, trace_id: trace_id, parent_id: parent_id
-        populate_runtime_context(segment)
+        populate_runtime_context(segment, sample)
       else
         segment = DummySegment.new name: seg_name, trace_id: trace_id, parent_id: parent_id
       end
@@ -204,14 +205,14 @@ module XRay
 
     private_class_method
 
-    def populate_runtime_context(segment)
+    def populate_runtime_context(segment, sample)
       @aws ||= begin
         aws = {}
         config.plugins.each do |p|
           meta = p.aws
           if meta.is_a?(Hash) && !meta.empty?
             aws.merge! meta
-            segment.origin = p::ORIGIN
+            @origin = p::ORIGIN
           end
         end
         xray_meta = { xray:
@@ -230,6 +231,8 @@ module XRay
 
       segment.aws = @aws
       segment.service = @service
+      segment.origin = @origin
+      segment.sampling_rule_name = sample if sample.is_a?(String)
     end
   end
 end

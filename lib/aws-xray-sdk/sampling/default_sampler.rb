@@ -1,105 +1,99 @@
+require 'aws-xray-sdk/logger'
+require 'aws-xray-sdk/sampling/local/sampler'
+require 'aws-xray-sdk/sampling/lead_poller'
+require 'aws-xray-sdk/sampling/rule_cache'
 require 'aws-xray-sdk/sampling/sampler'
 require 'aws-xray-sdk/sampling/sampling_rule'
-require 'aws-xray-sdk/exceptions'
+require 'aws-xray-sdk/sampling/sampling_decision'
 
 module XRay
-  # The default sampler that uses internally defined
-  # sampling rule and reservoir models to decide sampling decision.
-  # It also uses the default sampling rule.
-  # An example definition:
-  #   {
-  #     version: 1,
-  #     rules: [
-  #       {
-  #         description: 'Player moves.',
-  #         service_name: '*',
-  #         http_method: '*',
-  #         url_path: '/api/move/*',
-  #         fixed_target: 0,
-  #         rate: 0.05
-  #       }
-  #     ],
-  #     default: {
-  #       fixed_target: 1,
-  #       rate: 0.1
-  #     }
-  #   }
-  # This example defines one custom rule and a default rule.
-  # The custom rule applies a five-percent sampling rate with no minimum
-  # number of requests to trace for paths under /api/move/. The default
-  # rule traces the first request each second and 10 percent of additional requests.
-  # The SDK applies custom rules in the order in which they are defined.
-  # If a request matches multiple custom rules, the SDK applies only the first rule.
+  # Making sampling decisions based on service sampling rules defined
+  # by X-Ray control plane APIs. It will fall back to local sampling rules
+  # if service sampling rules are not available or expired.
   class DefaultSampler
     include Sampler
-    DEFAULT_RULES = {
-      version: 1,
-      default: {
-        fixed_target: 1,
-        rate: 0.05
-      },
-      rules: []
-    }.freeze
+    include Logging
+    attr_reader :cache, :local_sampler, :poller
+    attr_accessor :origin
 
     def initialize
-      load_sampling_rules(DEFAULT_RULES)
+      @local_sampler = LocalSampler.new
+      @cache = RuleCache.new
+      @poller = LeadPoller.new(@cache)
+
+      @started = false
+      @origin = nil
+      @lock = Mutex.new
     end
 
-    # Return True if the sampler decide to sample based on input
-    # information and sampling rules. It will first check if any
-    # custom rule should be applied, if not it falls back to the
-    # default sampling rule.
-    # All arugments are extracted from incoming requests by
-    # X-Ray middleware to perform path based sampling.
-    def sample_request?(service_name:, url_path:, http_method:)
-      # directly fallback to non-path-based if all arguments are nil
-      return sample? unless service_name || url_path || http_method
-      @custom_rules ||= []
-      @custom_rules.each do |c|
-        return should_sample?(c) if c.applies?(target_name: service_name, target_path: url_path, target_method: http_method)
+    # Start background threads to poll sampling rules
+    def start
+      @lock.synchronize do
+        unless @started
+          @poller.start
+          @started = true
+        end
       end
-      sample?
     end
 
-    # Decides if should sample based on non-path-based rule.
-    # Currently only the default rule is not path-based.
+    # Return the rule name if it decides to sample based on
+    # a service sampling rule matching. If there is no match
+    # it will fallback to local defined sampling rules.
+    def sample_request?(sampling_req)
+      start unless @started
+      now = Time.now.to_i
+      if sampling_req.nil?
+        sampling_req = { service_type: @origin } if @origin
+      elsif !sampling_req.key?(:service_type)
+        sampling_req[:service_type] = @origin if @origin
+      end
+
+      matched_rule = @cache.get_matched_rule(sampling_req, now: now)
+      if !matched_rule.nil?
+        logger.debug %(Rule #{matched_rule.name} is selected to make a sampling decision.')
+        process_matched_rule(matched_rule, now)
+      else
+        logger.warn %(No effective centralized sampling rule match. Fallback to local rules.)
+        @local_sampler.sample_request?(sampling_req)
+      end
+    end
+
     def sample?
-      should_sample?(@default_rule)
+      sample_request? nil
     end
 
-    # @param [Hash] v The sampling rules definition.
+    # @param [Hash] v Local sampling rules definition.
+    # This configuration has lower priority than service
+    # sampling rules and only has effect when those rules
+    # are not available or expired.
     def sampling_rules=(v)
-      load_sampling_rules(v)
+      @local_sampler.sampling_rules = v
     end
 
-    # @return [Array] An array of [SamplingRule]
-    def sampling_rules
-      all_rules = []
-      all_rules << @default_rule
-      all_rules << @custom_rules unless @custom_rules.empty?
-      all_rules
+    def daemon_config=(v)
+      @poller.connector.daemon_config = v
     end
 
     private
 
-    def should_sample?(rule)
-      return true if rule.reservoir.take
-      Random.rand <= rule.rate
-    end
-
-    def load_sampling_rules(v)
-      version = v[:version]
-      if version != 1
-        raise InvalidSamplingConfigError, %('Sampling rule version #{version} is not supported.')
+    def process_matched_rule(rule, now)
+      # As long as a rule is matched we increment request counter.
+      rule.increment_request_count
+      reservoir = rule.reservoir
+      sample = true
+      # We check if we can borrow or take from reservoir first.
+      decision = reservoir.borrow_or_take(now, rule.borrowable?)
+      if decision == SamplingDecision::BORROW
+        rule.increment_borrow_count
+      elsif decision == SamplingDecision::TAKE
+        rule.increment_sampled_count
+        # Otherwise we compute based on fixed rate of this sampling rule.
+      elsif rand <= rule.rate
+        rule.increment_sampled_count
+      else
+        sample = false
       end
-      unless v[:default]
-        raise InvalidSamplingConfigError, 'A default rule must be provided.'
-      end
-      @default_rule = SamplingRule.new rule_definition: v[:default], default: true
-      @custom_rules = []
-      v[:rules].each do |d|
-        @custom_rules << SamplingRule.new(rule_definition: d)
-      end
+      sample ? rule.name : false
     end
   end
 end

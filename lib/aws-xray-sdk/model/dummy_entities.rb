@@ -38,6 +38,10 @@ module XRay
       # no-op
     end
 
+    def sampling_rule_name=(v)
+      # no-op
+    end
+
     def to_h
       # no-op
     end

@@ -1,6 +1,6 @@
-require 'aws-xray-sdk/sampling/sampling_rule'
-require 'aws-xray-sdk/sampling/reservoir'
-require 'aws-xray-sdk/sampling/default_sampler'
+require 'aws-xray-sdk/sampling/local/reservoir'
+require 'aws-xray-sdk/sampling/local/sampler'
+require 'aws-xray-sdk/sampling/local/sampling_rule'
 require 'aws-xray-sdk/exceptions'
 
 # Test sampling models and the default sampler
@@ -8,37 +8,42 @@ class TestSampling < Minitest::Test
   VALID_RULE_DEF = {
     fixed_target: 1,
     rate:         0.5,
-    service_name: '*',
+    host: '*',
     url_path:     '*/ping',
     http_method:  'PUT'
   }.freeze
 
   def test_reservoir_pass_through
-    reservoir = XRay::Reservoir.new traces_per_sec: 1
+    reservoir = XRay::LocalReservoir.new traces_per_sec: 1
     assert reservoir.take
-    reservoir2 = XRay::Reservoir.new
+    reservoir2 = XRay::LocalReservoir.new
     refute reservoir2.take
   end
 
   def test_simple_single_rule
-    rule = XRay::SamplingRule.new rule_definition: VALID_RULE_DEF
+    rule = XRay::LocalSamplingRule.new rule_definition: VALID_RULE_DEF
 
     assert_equal 1, rule.fixed_target
     assert_equal 0.5, rule.rate
-    assert_equal '*', rule.service_name
+    assert_equal '*', rule.host
     assert_equal '*/ping', rule.path
     assert_equal 'PUT', rule.method
     assert rule.reservoir.take
   end
 
   def test_rule_request_matching
-    rule = XRay::SamplingRule.new rule_definition: VALID_RULE_DEF
+    rule = XRay::LocalSamplingRule.new rule_definition: VALID_RULE_DEF
 
-    assert rule.applies? target_name: nil, target_path: '/ping', target_method: 'put'
-    assert rule.applies? target_name: 'a', target_path: nil, target_method: 'put'
-    assert rule.applies? target_name: 'a', target_path: '/ping', target_method: nil
-    assert rule.applies? target_name: 'a', target_path: '/ping', target_method: 'PUT'
-    refute rule.applies? target_name: 'a', target_path: '/sping', target_method: 'PUT'
+    req1 = { host: nil, url_path: '/ping', http_method: 'put' }
+    req2 = { host: 'a', url_path: nil, http_method: 'put' }
+    req3 = { host: 'a', url_path: '/ping', http_method: nil }
+    req4 = { host: 'a', url_path: '/ping', http_method: 'PUT' }
+    req5 = { host: 'a', url_path: '/sping', http_method: 'PUT' }
+    assert rule.applies?(req1)
+    assert rule.applies?(req2)
+    assert rule.applies?(req3)
+    assert rule.applies?(req4)
+    refute rule.applies?(req5)
   end
 
   def test_invalid_single_rule
@@ -46,20 +51,20 @@ class TestSampling < Minitest::Test
     rule_def1 = {
       fixed_target: 1,
       rate:         0.5,
-      service_name: '*',
+      host: '*',
       http_method:  'GET'
     }
     assert_raises XRay::InvalidSamplingConfigError do
-      XRay::SamplingRule.new rule_definition: rule_def1
+      XRay::LocalSamplingRule.new rule_definition: rule_def1
     end
     # extra field for default rule
     rule_def2 = {
       fixed_target: 1,
       rate:         0.5,
-      service_name: '*'
+      host: '*'
     }
     assert_raises XRay::InvalidSamplingConfigError do
-      XRay::SamplingRule.new rule_definition: rule_def2, default: true
+      XRay::LocalSamplingRule.new rule_definition: rule_def2, default: true
     end
     # invalid value
     rule_def3 = {
@@ -67,16 +72,16 @@ class TestSampling < Minitest::Test
       rate:         -0.5
     }
     assert_raises XRay::InvalidSamplingConfigError do
-      XRay::SamplingRule.new rule_definition: rule_def3, default: true
+      XRay::LocalSamplingRule.new rule_definition: rule_def3, default: true
     end
   end
 
   EXAMPLE_CONFIG = {
-    version: 1,
+    version: 2,
     rules: [
       {
         description: 'Player moves.',
-        service_name: '*',
+        host: '*',
         http_method: '*',
         url_path: '*/ping',
         fixed_target: 0,
@@ -89,8 +94,8 @@ class TestSampling < Minitest::Test
     }
   }.freeze
 
-  def test_default_sampler
-    sampler = XRay::DefaultSampler.new
+  def test_local_sampler
+    sampler = XRay::LocalSampler.new
     assert sampler.sample?
     # should only has default rule
     assert_equal 1, sampler.sampling_rules.count
@@ -102,7 +107,7 @@ class TestSampling < Minitest::Test
   end
 
   def test_invalid_rules_config
-    sampler = XRay::DefaultSampler.new
+    sampler = XRay::LocalSampler.new
     config1 = EXAMPLE_CONFIG.merge(version: nil)
     assert_raises XRay::InvalidSamplingConfigError do
       sampler.sampling_rules = config1

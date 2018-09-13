@@ -3,6 +3,7 @@ SimpleCov.start
 
 require 'minitest/autorun'
 require 'aws-xray-sdk/emitter/emitter'
+require 'aws-xray-sdk/sampling/default_sampler'
 
 if RUBY_PLATFORM == 'java'
   require 'jrjackson'
@@ -26,6 +27,13 @@ module XRay
 
       def clear
         @entities = []
+      end
+    end
+
+    # The stubbed sampler doesn't spawn threads to call X-Ray service.
+    class StubbedDefaultSampler < DefaultSampler
+      def start
+        # no-op
       end
     end
   end

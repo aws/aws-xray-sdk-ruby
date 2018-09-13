@@ -21,6 +21,10 @@ module XRay
       end
 
       def request(req, body = nil, &block)
+        if req.path && (req.path == ('/GetSamplingRules') || req.path == ('/SamplingTargets'))
+          return super
+        end
+
         entity = XRay.recorder.current_entity
         capture = !(entity && entity.namespace && entity.namespace == 'aws'.freeze)
         if started? && capture && entity

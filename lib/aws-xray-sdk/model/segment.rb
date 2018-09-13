@@ -6,7 +6,8 @@ module XRay
   # details about the request, and details about the work done.
   class Segment
     include Entity
-    attr_accessor :ref_counter, :subsegment_size, :origin, :user, :service
+    attr_accessor :ref_counter, :subsegment_size, :origin,
+                  :user, :service
 
     # @param [String] trace_id Manually crafted trace id.
     # @param [String] name Must be specified either on object creation or
@@ -37,6 +38,12 @@ module XRay
     def remove_subsegment(subsegment:)
       super subsegment: subsegment
       @subsegment_size = subsegment_size - subsegment.all_children_count - 1
+    end
+
+    def sampling_rule_name=(v)
+      @aws ||= {}
+      @aws[:xray] ||= {}
+      @aws[:xray][:sampling_rule_name] = v
     end
 
     def decrement_ref_counter

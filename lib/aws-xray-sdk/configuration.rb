@@ -2,6 +2,7 @@ require 'aws-xray-sdk/exceptions'
 require 'aws-xray-sdk/patcher'
 require 'aws-xray-sdk/emitter/default_emitter'
 require 'aws-xray-sdk/context/default_context'
+require 'aws-xray-sdk/daemon_config'
 require 'aws-xray-sdk/sampling/default_sampler'
 require 'aws-xray-sdk/streaming/default_streamer'
 require 'aws-xray-sdk/segment_naming/dynamic_naming'
@@ -17,9 +18,9 @@ module XRay
     include Patcher
 
     SEGMENT_NAME_KEY = 'AWS_XRAY_TRACING_NAME'.freeze
-    CONFIG_KEY = %I[logger name sampling plugins daemon_address segment_naming
-                    naming_pattern emitter streamer context context_missing
-                    sampling_rules stream_threshold patch].freeze
+    CONFIG_KEY = %I[logger name sampling plugins daemon_address
+                    segment_naming naming_pattern emitter streamer context
+                    context_missing sampling_rules stream_threshold patch].freeze
 
     def initialize
       @name = ENV[SEGMENT_NAME_KEY]
@@ -38,9 +39,12 @@ module XRay
       @name = ENV[SEGMENT_NAME_KEY] || v
     end
 
-    # proxy method to the emitter's daemon_address config.
+    # setting daemon address for components communicate with X-Ray daemon.
     def daemon_address=(v)
-      emitter.daemon_address = v
+      v = ENV[DaemonConfig::DAEMON_ADDRESS_KEY] || v
+      config = DaemonConfig.new(v)
+      emitter.daemon_config = config
+      sampler.daemon_config = config if sampler.respond_to?(:daemon_config=)
     end
 
     # proxy method to the context's context_missing config.
@@ -63,8 +67,7 @@ module XRay
       segment_naming.pattern = v
     end
 
-    # makes a sampling decision based on internal configure, e.g.
-    #   if sampling enabled and the default sampling rule.
+    # makes a sampling decision without incoming filters.
     def sample?
       return true unless sampling
       sampler.sample?
