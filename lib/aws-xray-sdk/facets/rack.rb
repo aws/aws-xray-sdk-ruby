@@ -23,15 +23,14 @@ module XRay
         host = req.host
         url_path = req.path
         method = req.request_method
+        # get segment name from host header if applicable
+        seg_name = @recorder.segment_naming.provide_name(host: req.host)
 
         # get sampling decision
         sampled = should_sample?(
-          header_obj: header, recorder: @recorder,
-          host: host, method: method, path: url_path
+          header_obj: header, recorder: @recorder, sampling_req:
+          { host: host, http_method: method, url_path: url_path, service: seg_name }
         )
-
-        # get segment name from host header if applicable
-        seg_name = @recorder.segment_naming.provide_name(host: req.host)
 
         # begin the segment
         segment = @recorder.begin_segment seg_name, trace_id: header.root, parent_id: header.parent_id,

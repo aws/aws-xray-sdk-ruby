@@ -93,6 +93,20 @@ class TestRecorder < Minitest::Test
     assert @@recorder.sampled?
   end
 
+  def test_sampling_segments
+    recorder = XRay::Recorder.new
+    config = {
+      sampling: true,
+      emitter: XRay::TestHelper::StubbedEmitter.new,
+      sampler: XRay::TestHelper::StubbedDefaultSampler.new
+    }
+    recorder.configure(config)
+
+    segment = recorder.begin_segment('name')
+    assert segment.sampled
+    recorder.context.clear!
+  end
+
   def test_add_annotation
     segment = @@recorder.begin_segment name
     @@recorder.annotations[:k] = 1

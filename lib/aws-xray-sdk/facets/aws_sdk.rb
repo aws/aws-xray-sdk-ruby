@@ -17,14 +17,18 @@ module XRay
       include XRay::Facets::Helper
 
       def call(context)
-        recorder = Aws.config[:xray_recorder]
-        if recorder.current_entity.nil?
-          return super
-        end
-
         operation = context.operation_name
         service_name = context.client.class.api.metadata['serviceAbbreviation'] ||
                        context.client.class.to_s.split('::')[1]
+        if skip?(service_name, operation)
+          return super
+        end
+
+        recorder = Aws.config[:xray_recorder]
+        if recorder.nil? || recorder.current_entity.nil?
+          return super
+        end
+
         recorder.capture(service_name, namespace: 'aws') do |subsegment|
           # inject header string before calling downstream AWS services
           context.http_request.headers[TRACE_HEADER] = prep_header_str entity: subsegment
@@ -108,6 +112,10 @@ module XRay
         # "get_keys" = true
         v = target.keys if descriptor[:get_keys]
         meta[descriptor[:rename_to]] = v
+      end
+
+      def skip?(service, op)
+        return service == 'XRay' && (op == :get_sampling_rules || op == :get_sampling_targets)
       end
     end
   end

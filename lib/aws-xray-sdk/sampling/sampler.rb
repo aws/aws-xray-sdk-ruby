@@ -6,12 +6,12 @@ module XRay
   module Sampler
     # Decides if a segment should be sampled for an incoming request.
     # Used in case of middleware.
-    def sample_request?(service_name:, url_path:, http_method:)
+    def sample_request?(sampling_req:)
       raise 'Not implemented'
     end
 
-    # Decides if a segment should be sampled merely based on internal
-    # sampling rules.
+    # Sample purely based on cached sampling rules without
+    # any incoming rules matching information.
     def sample?
       raise 'Not implemented'
     end

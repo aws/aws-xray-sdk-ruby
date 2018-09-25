@@ -51,13 +51,15 @@ The [API Reference](http://docs.aws.amazon.com/xray-sdk-for-ruby/latest/referenc
 ```ruby
 require 'aws-xray-sdk'
 
-# configure path based sampling rules in case of web app
+# For configuring sampling rules through X-Ray service
+# please see https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html.
+# The doc below defines local fallback sampling rules which has lower priority.
 my_sampling_rules = {
-  version: 1,
+  version: 2,
   rules: [
     {
       description: 'healthcheck',
-      service_name: '*',
+      host: '*',
       http_method: 'GET',
       url_path: '/ping',
       fixed_target: 0,
