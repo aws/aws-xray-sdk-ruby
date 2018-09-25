@@ -37,7 +37,8 @@ module XRay
       @xray_client = Aws::XRay::Client.new(
         endpoint: %(http://#{ip}:#{port}),
         access_key_id: 'dummy', # AWS Ruby SDK doesn't support unsigned request
-        secret_access_key: 'dummy'
+        secret_access_key: 'dummy',
+        region: 'us-west-2' # not used
       )
     end
 
