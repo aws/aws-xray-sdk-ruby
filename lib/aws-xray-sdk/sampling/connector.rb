@@ -9,7 +9,6 @@ module XRay
   class ServiceConnector
     include Logging
     attr_accessor :xray_client
-    @@client_id = SecureRandom.hex(12)
 
     def initialize
       update_xray_client
@@ -46,6 +45,12 @@ module XRay
       update_xray_client ip: v.tcp_ip, port: v.tcp_port
     end
 
+    def client_id
+      @client_id ||= begin
+        SecureRandom.hex(12) 
+      end
+    end
+
     private
 
     def generate_reports(rules, now)
@@ -54,7 +59,7 @@ module XRay
         report = rule.snapshot_statistics
         report[:rule_name] = rule.name
         report[:timestamp] = now
-        report[:client_id] = @@client_id
+        report[:client_id] = client_id
         reports << report
       end
       reports

@@ -38,6 +38,7 @@ class TestFacetRack < Minitest::Test
   config = {
     name: "rack_test",
     emitter: XRay::TestHelper::StubbedEmitter.new,
+    sampler: XRay::TestHelper::StubbedDefaultSampler.new
   }
   @@recorder.configure(config)
 

@@ -1,3 +1,6 @@
+0.11.1 (2018-10-09)
+* Bugfix - Fixed an issue where sampling rule poller is terminated on Puma clustered mode. [ISSUE#14](https://github.com/aws/aws-xray-sdk-ruby/issues/14)
+
 0.11.0 (2018-09-25)
 -------------------
 * **Breaking**: The default sampler now launches background tasks to poll sampling rules from X-Ray service. See more details on how to create sampling rules: https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html.

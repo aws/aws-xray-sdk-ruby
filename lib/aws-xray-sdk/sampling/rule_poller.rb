@@ -9,10 +9,12 @@ module XRay
     def initialize(cache:, connector:)
       @cache = cache
       @connector = connector
-      @worker = Thread.new { poll }
     end
 
     def run
+      @worker ||= begin 
+        Thread.new { poll }
+      end
       @worker.run
     end
 
@@ -20,8 +22,8 @@ module XRay
 
     def poll
       loop do
-        Thread.stop
         refresh_cache
+        Thread.stop
       end
     end
 
@@ -33,7 +35,7 @@ module XRay
         @cache.last_updated = now
       end
     rescue StandardError => e
-      logger.warn %(failed to fetch X-Ray sampling rules due to #{e.backtrace})
+      logger.warn %(failed to fetch X-Ray sampling rules due to #{e.message})
     end
   end
 end
