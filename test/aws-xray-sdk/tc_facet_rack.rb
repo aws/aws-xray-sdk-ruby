@@ -63,4 +63,11 @@ class TestFacetRack < Minitest::Test
     segment = @@recorder.emitter.entities[0]
     assert_equal "http://localhost:3000/index.html", segment.http_request[:url]
   end
+
+  def test_rack_returns_xray_header
+    middleware = XRay::Rack::Middleware.new(@@app, :recorder => @@recorder)
+    _, headers, _ = middleware.call ENV_WITH_QUERY_STRING
+    assert_equal true, headers.has_key?(XRay::Facets::Helper::TRACE_HEADER)
+  end
+
 end
