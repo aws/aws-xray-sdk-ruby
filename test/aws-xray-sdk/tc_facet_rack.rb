@@ -68,6 +68,9 @@ class TestFacetRack < Minitest::Test
     middleware = XRay::Rack::Middleware.new(@@app, :recorder => @@recorder)
     _, headers, _ = middleware.call ENV_WITH_QUERY_STRING
     assert_equal true, headers.has_key?(XRay::Facets::Helper::TRACE_HEADER)
+    assert_match /^Root=/, headers[XRay::Facets::Helper::TRACE_HEADER]
+    refute_match /ParentId=/, headers[XRay::Facets::Helper::TRACE_HEADER]
+    refute_match /Sampled=/, headers[XRay::Facets::Helper::TRACE_HEADER]
   end
 
 end
