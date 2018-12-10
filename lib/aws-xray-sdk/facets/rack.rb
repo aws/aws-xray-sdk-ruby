@@ -49,7 +49,7 @@ module XRay
             resp_meta[:content_length] = len
           end
           segment.merge_http_response response: resp_meta
-          trace_header = {TRACE_HEADER => TraceHeader.from_entity(entity: XRay.recorder.current_segment).root_string}
+          trace_header = {TRACE_HEADER => TraceHeader.from_entity(entity: segment).root_string}
           headers.merge!(trace_header)
           [status, headers, body]
         rescue Exception => e
