@@ -42,12 +42,7 @@ module XRay
 
       # Prepares a X-Ray header string based on the provided Segment/Subsegment.
       def prep_header_str(entity:)
-        return '' if entity.nil?
-        root = entity.segment.trace_id
-        parent_id = entity.id
-        sampled = entity.sampled ? 1 : 0
-        header = TraceHeader.new root: root, parent_id: parent_id, sampled: sampled
-        header.header_string
+        TraceHeader.from_entity(entity: entity).header_string
       end
     end
   end

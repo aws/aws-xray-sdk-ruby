@@ -18,6 +18,14 @@ module XRay
       @sampled = sampled.to_i if sampled
     end
 
+    def self.from_entity(entity:)
+      return empty_header if entity.nil?
+      root = entity.segment.trace_id
+      parent_id = entity.id
+      sampled = entity.sampled ? 1 : 0
+      new root: root, parent_id: parent_id, sampled: sampled
+    end
+
     def self.from_header_string(header_str:)
       empty_header if header_str.to_s.empty?
       header = header_str.delete(' ').downcase
@@ -35,15 +43,20 @@ module XRay
       end
     end
 
+    # @return [String] The header string of the root object
+    def root_string
+	%(Root=#{root})
+    end
+
     # @return [String] The heading string constructed based on this header object.
     def header_string
       return '' unless root
       if !parent_id
-        %(Root=#{root};Sampled=#{sampled})
+        %(#{root_string};Sampled=#{sampled})
       elsif !sampled
-        %(Root=#{root};Parent=#{parent_id})
+        %(#{root_string};Parent=#{parent_id})
       else
-        %(Root=#{root};Parent=#{parent_id};Sampled=#{sampled})
+        %(#{root_string};Parent=#{parent_id};Sampled=#{sampled})
       end
     end
 
