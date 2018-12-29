@@ -42,7 +42,7 @@ module XRay
     # setting daemon address for components communicate with X-Ray daemon.
     def daemon_address=(v)
       v = ENV[DaemonConfig::DAEMON_ADDRESS_KEY] || v
-      config = DaemonConfig.new(v)
+      config = DaemonConfig.new(addr: v)
       emitter.daemon_config = config
       sampler.daemon_config = config if sampler.respond_to?(:daemon_config=)
     end
