@@ -143,7 +143,9 @@ module XRay
       else
         h[:in_progress] = true
       end
-      h[:subsegments] = subsegments unless subsegments.empty?
+
+      h[:subsegments] = subsegments.map(&:to_h) unless subsegments.empty?
+
       h[:aws] = aws if aws
       if http_request || http_response
         h[:http] = {}
