@@ -17,7 +17,11 @@ module XRay
     end
 
     def to_h
-      @data
+      @data.keys.each_with_object({}) do |key, h|
+        h[key] = @data[key].to_h
+        h
+      end
+
     end
   end
 
