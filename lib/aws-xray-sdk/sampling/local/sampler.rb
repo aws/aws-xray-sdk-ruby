@@ -58,7 +58,7 @@ module XRay
       return sample if sampling_req.nil? || sampling_req.empty?
       @custom_rules ||= []
       @custom_rules.each do |c|
-        return should_sample?(c) if c.applies?(sampling_req: sampling_req)
+        return should_sample?(c) if c.applies?(sampling_req)
       end
       # use previously made decision based on default rule
       # if no path-based rule has been matched
