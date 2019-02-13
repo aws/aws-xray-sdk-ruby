@@ -19,6 +19,7 @@ module XRay
           return if IGNORE_OPS.include?(payload[:name]) || pool.nil? || conn.nil?
           db_config = pool.spec.config
           name, sql = build_name_sql_meta config: db_config, conn: conn
+          sql[:sanitized_query] = payload.fetch(:sql)
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
           # subsegment is nil in case of context missing
           return if subsegment.nil?
