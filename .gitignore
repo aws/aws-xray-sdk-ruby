@@ -14,6 +14,3 @@ tmp
 test/tmp
 coverage
 vendor/
-
-# JetBrains
-.idea/
