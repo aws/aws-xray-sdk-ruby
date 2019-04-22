@@ -50,7 +50,7 @@ module XRay
       @data
     end
 
-    def to_json
+    def to_json(*)
       @to_json ||= begin
         MultiJson.dump to_h
       end
