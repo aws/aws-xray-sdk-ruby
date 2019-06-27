@@ -57,7 +57,7 @@ module XRay
       ElasticLoadBalancingV2
       ElasticTranscoder
       ElasticsearchService
-      Firehost
+      Firehose
       GameLift
       Glacier
       Glue
