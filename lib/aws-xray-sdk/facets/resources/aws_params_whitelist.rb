@@ -329,6 +329,15 @@ module XRay
               ]
             }
           }
+        },
+        SNS: {
+          operations: {
+            publish: {
+              request_parameters: %I[
+                topic_arn
+              ]
+            }
+          }
         }
       }
     }
