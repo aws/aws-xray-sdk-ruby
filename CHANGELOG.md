@@ -1,4 +1,13 @@
+0.11.2 (2019-07-18)
+-------------------
+* Added - AWS SNS service whitelist support [PR #29](https://github.com/aws/aws-xray-sdk-ruby/pull/29)
+* Bugfix - Fixed typo for Firehose client in AWS service manifest file [Issue #26](https://github.com/aws/aws-xray-sdk-ruby/issues/26), [PR #27](https://github.com/aws/aws-xray-sdk-ruby/pull/27)
+* Bugfix - Fixed custom daemon address configuration [PR #18](https://github.com/aws/aws-xray-sdk-ruby/pull/18)
+* Bugfix - Fixed trace header in the HTTP response for JS apps[PR #16](https://github.com/aws/aws-xray-sdk-ruby/pull/16)
+* Fixed broken travis CI [PR #24](https://github.com/aws/aws-xray-sdk-ruby/pull/24)
+
 0.11.1 (2018-10-09)
+-------------------
 * Bugfix - Fixed an issue where sampling rule poller is terminated on Puma clustered mode. [ISSUE#14](https://github.com/aws/aws-xray-sdk-ruby/issues/14)
 
 0.11.0 (2018-09-25)
