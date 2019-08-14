@@ -15,6 +15,10 @@ require 'aws-xray-sdk/lambda/lambda_streamer'
 class TestLambda < Minitest::Test
   PARENT_ID = '53995c3f42cd8ad8'.freeze
 
+  def teardown
+    ENV[XRay::LambdaContext::TRACE_ID_ENV_VAR] = nil
+  end
+
   def test_facade_segment_never_ready_to_send
     segment = XRay::FacadeSegment.new
     refute segment.ready_to_send?
