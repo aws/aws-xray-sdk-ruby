@@ -34,13 +34,6 @@ class TestFacetRack < Minitest::Test
     "REQUEST_PATH" => "/index.html"
   }.freeze
 
-  @@recorder = XRay::Recorder.new
-  config = {
-    name: "rack_test",
-    emitter: XRay::TestHelper::StubbedEmitter.new,
-    sampler: XRay::TestHelper::StubbedDefaultSampler.new
-  }
-  @@recorder.configure(config)
 
   @@app = Minitest::Mock.new
   def @@app.call(env)
@@ -48,13 +41,13 @@ class TestFacetRack < Minitest::Test
   end
 
   def setup
-    @@recorder.context.clear!
-    @@recorder.emitter.clear
-  end
-
-  def teardown
-    @@recorder.context.clear!
-    @@recorder.emitter.clear
+    @@recorder = XRay::Recorder.new
+    config = {
+      name: "rack_test",
+      emitter: XRay::TestHelper::StubbedEmitter.new,
+      sampler: XRay::TestHelper::StubbedDefaultSampler.new
+    }
+    @@recorder.configure(config)
   end
 
   def test_rack_http_url_excludes_query_string
