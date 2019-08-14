@@ -84,6 +84,17 @@ user_config = {
 XRay.recorder.configure(user_config)
 ```
 
+**Working with Lambda**
+
+```ruby
+# Bundle aws-xray-sdk with your code.
+# Require any aws-sdks and http libraries to be used, then...
+require 'aws-xray-sdk/lambda'
+# aws-sdk and http calls from here on will be instrumented
+```
+See also [lib/aws-xray-sdk/lambda.rb](lib/aws-xray-sdk/lambda.rb)
+
+
 **Working with Rails**
 
 ```ruby
