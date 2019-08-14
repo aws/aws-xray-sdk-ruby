@@ -14,17 +14,17 @@ module XRay
     # segment and make it the context's current entity
     def check_context
       #Create a new FacadeSegment if the _X_AMZN_TRACE_ID changes.
-      if lambda_trace_id != @current_trace_id
-        @current_trace_id = lambda_trace_id
-        trace_header = XRay::TraceHeader.from_header_string(header_str: @current_trace_id)
-        segment = FacadeSegment.new(trace_id: trace_header.root,
-          parent_id: trace_header.parent_id,
-          id: trace_header.parent_id,
-          name: 'lambda_context',
-          sampled: trace_header.sampled
-        )
-        store_entity(entity: segment)
-      end
+      return if lambda_trace_id == @current_trace_id
+
+      @current_trace_id = lambda_trace_id
+      trace_header = XRay::TraceHeader.from_header_string(header_str: @current_trace_id)
+      segment = FacadeSegment.new(trace_id: trace_header.root,
+        parent_id: trace_header.parent_id,
+        id: trace_header.parent_id,
+        name: 'lambda_context',
+        sampled: trace_header.sampled
+      )
+      store_entity(entity: segment)
     end
 
     def current_entity
