@@ -28,4 +28,7 @@ module XRay
 
   class UnsupportedPatchingTargetError < AwsXRaySdkError
   end
+
+  class UnsupportedOperationError < AwsXRaySdkError
+  end
 end

@@ -1,3 +1,5 @@
+require_relative '../model/trace_header'
+
 module XRay
   # LambdaContext extends the default context so that
   # we can provide an appropriate FacadeSegment as the
