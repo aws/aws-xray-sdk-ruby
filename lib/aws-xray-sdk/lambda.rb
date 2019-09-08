@@ -4,7 +4,6 @@
 require_relative '../aws-xray-sdk'
 require_relative 'lambda/facade_segment'
 require_relative 'lambda/lambda_context'
-require_relative 'lambda/lambda_emitter'
 require_relative 'lambda/lambda_streamer'
 
 # Set `XRAY_LAMBDA_PATCH_CONFIG` before requiring `aws-xray-sdk/lambda`
@@ -22,6 +21,5 @@ end
 XRay.recorder.configure(
   patch: XRAY_LAMBDA_PATCH_CONFIG,
   context: XRay::LambdaContext.new,
-  streamer: XRay::LambdaStreamer.new,
-  emitter: XRay::LambdaEmitter.new
+  streamer: XRay::LambdaStreamer.new
 )

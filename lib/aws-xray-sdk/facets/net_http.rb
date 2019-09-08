@@ -16,12 +16,18 @@ module XRay
     module HTTPInstanceInterceptor
       include XRay::Facets::Helper
 
+      # Pattern matches the path of requests from the AWS Lambda Ruby Runtime.
+      # We do not want to capture these
+      LAMBDA_RUNTIME_PATH_PATTERN = /\A\/[0-9-]{10}\/runtime\/invocation\//.freeze
+
       def initialize(*options)
         super(*options)
       end
 
       def request(req, body = nil, &block)
-        if req.path && (req.path == ('/GetSamplingRules') || req.path == ('/SamplingTargets'))
+        if req.path && (req.path == ('/GetSamplingRules') ||
+                        req.path == ('/SamplingTargets') ||
+                        req.path =~ LAMBDA_RUNTIME_PATH_PATTERN)
           return super
         end
 
