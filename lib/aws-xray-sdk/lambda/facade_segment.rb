@@ -1,9 +1,30 @@
 module XRay
   class FacadeSegment < XRay::Segment
+
+    class ImmutableEmptyCollection
+      def [](key)
+        nil
+      end
+  
+      def []=(k, v)
+        raise UnsupportedOperationError
+      end
+  
+      def update(h)
+        raise UnsupportedOperationError
+      end
+  
+      def to_h
+        {}
+      end
+    end
+
+
     def initialize(trace_id: nil, name: nil, parent_id: nil, id: nil, sampled: true)
       super(trace_id: trace_id, name: name, parent_id: parent_id)
       @id = id
       @sampled = sampled
+      @empty_collection = ImmutableEmptyCollection.new
     end
 
     def ready_to_send?
@@ -74,6 +95,20 @@ module XRay
     end
     def service=(value)
       raise UnsupportedOperationError
+    end
+    
+    #
+    # Annotations are read only
+    #
+    def annotations
+      @empty_collection
+    end
+
+    #
+    # Metadata is read only
+    #
+    def metadata(namespace: :default)
+      @empty_collection
     end
 
   end

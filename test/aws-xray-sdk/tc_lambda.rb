@@ -9,6 +9,9 @@ require 'aws-xray-sdk/lambda/lambda_context'
 require 'aws-xray-sdk/streaming/default_streamer'
 require 'aws-xray-sdk/lambda/lambda_streamer'
 
+require 'aws-xray-sdk/lambda/lambda_recorder'
+
+
 # Test lambda instrumentation
 class TestLambda < Minitest::Test
   PARENT_ID = '53995c3f42cd8ad8'.freeze
@@ -67,6 +70,27 @@ class TestLambda < Minitest::Test
       end
     end
   end
+  def test_facade_segment_annotations_are_read_only
+    segment = XRay::FacadeSegment.new
+    assert_equal(segment.annotations.to_h, {})
+    assert_raises XRay::UnsupportedOperationError do
+        segment.annotations['x'] = 'y'
+    end
+    assert_raises XRay::UnsupportedOperationError do
+      segment.annotations.update({x: 'y'})
+    end
+  end
+  def test_facade_segment_metadata_is_read_only
+    segment = XRay::FacadeSegment.new
+    metadata = segment.metadata(namespace: 'a_namespace')
+    assert_equal(metadata.to_h, {})
+    assert_raises XRay::UnsupportedOperationError do
+        metadata['x'] = 'y'
+    end
+    assert_raises XRay::UnsupportedOperationError do
+      metadata.update({x: 'y'})
+    end
+  end
 
   def test_lambda_context_reads_trace_id
     trace_id = XRay::Segment.new.trace_id
@@ -112,4 +136,19 @@ class TestLambda < Minitest::Test
     streamer = XRay::LambdaStreamer.new
     assert_equal(1, streamer.stream_threshold)
   end
+
+  def test_lambda_recorder_begin_end_segment_is_noop
+    trace_id = XRay::Segment.new.trace_id
+    header_str = %(ROOT=#{trace_id}; PARENT=#{PARENT_ID}; SAMPLED=1)
+    ENV[XRay::LambdaContext::TRACE_ID_ENV_VAR] = header_str
+
+    recorder = XRay::LambdaRecorder.new
+    recorder.configure( context: XRay::LambdaContext.new )
+    entity = recorder.context.current_entity
+    assert_equal(recorder.begin_segment('some_name'), entity) #calling begin_segment returns current entity
+    assert_equal(recorder.context.current_entity, entity) #current entity is unchanged
+    recorder.end_segment
+    assert_equal(recorder.context.current_entity, entity) #current entity is unchanged
+  end
+
 end
