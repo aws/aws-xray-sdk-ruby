@@ -62,7 +62,7 @@ class TestLambda < Minitest::Test
   end
   def test_facade_segment_unsupported_mutators
     %i( parent= throttle= error= fault= sampled= aws= start_time= end_time=
-        ref_counter= subsegment_size= origin= user= service=
+        origin= user= service=
       ).each do |accessor|
       segment = XRay::FacadeSegment.new
       assert_raises XRay::UnsupportedOperationError do
@@ -90,6 +90,13 @@ class TestLambda < Minitest::Test
     assert_raises XRay::UnsupportedOperationError do
       metadata.update({x: 'y'})
     end
+  end
+  def test_facade_segment_can_add_subsegment
+    segment = XRay::FacadeSegment.new
+    sub1 = XRay::Subsegment.new(name: 'sub1', segment: segment)
+    segment.add_subsegment(subsegment: sub1)
+    sub2 = XRay::Subsegment.new(name: 'sub2', segment: segment)
+    sub1.add_subsegment(subsegment: sub2)
   end
 
   def test_lambda_context_reads_trace_id
@@ -119,6 +126,7 @@ class TestLambda < Minitest::Test
     assert_instance_of(XRay::FacadeSegment, entity)
     assert_equal(trace_id, entity.trace_id)
     assert_equal(PARENT_ID, entity.to_h[:parent_id])
+    assert_equal(true, entity.sampled)
 
     trace_id_2 = XRay::Segment.new.trace_id
     refute_equal(trace_id_2, trace_id)
@@ -130,6 +138,7 @@ class TestLambda < Minitest::Test
     assert_instance_of(XRay::FacadeSegment, entity_2)
     assert_equal(trace_id_2, entity_2.trace_id)
     assert_equal(PARENT_ID, entity_2.to_h[:parent_id])
+    assert_equal(false, entity_2.sampled)
   end
 
   def test_lambda_stream_threshold_is_one

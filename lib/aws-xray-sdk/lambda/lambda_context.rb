@@ -24,7 +24,7 @@ module XRay
         parent_id: trace_header.parent_id,
         id: trace_header.parent_id,
         name: 'lambda_context',
-        sampled: trace_header.sampled
+        sampled: trace_header.sampled == 1
       )
       store_entity(entity: segment)
     end

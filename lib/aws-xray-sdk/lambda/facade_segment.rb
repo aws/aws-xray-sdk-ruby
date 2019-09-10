@@ -81,12 +81,6 @@ module XRay
     #
     # Mutation accessors from Segment that are not supported
     #
-    def ref_counter=(value)
-      raise UnsupportedOperationError
-    end
-    def subsegment_size=(value)
-      raise UnsupportedOperationError
-    end
     def origin=(value)
       raise UnsupportedOperationError
     end
