@@ -25,7 +25,7 @@ module XRay
       def lambda_runtime_request?(req)
         ENV['AWS_LAMBDA_RUNTIME_API']  &&
           req.uri &&
-          req.uri.to_s.starts_with?('http://'+ENV['AWS_LAMBDA_RUNTIME_API']+'/')
+          req.uri.to_s.start_with?('http://'+ENV['AWS_LAMBDA_RUNTIME_API']+'/')
       end
 
       def xray_sampling_request?(req)
