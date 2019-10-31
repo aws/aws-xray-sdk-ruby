@@ -1,3 +1,7 @@
+0.11.3 (2019-10-31)
+-------------------
+* Added - Lambda instrumentation support [PR #32](https://github.com/aws/aws-xray-sdk-ruby/pull/32)
+
 0.11.2 (2019-07-18)
 -------------------
 * Added - AWS SNS service whitelist support [PR #29](https://github.com/aws/aws-xray-sdk-ruby/pull/29)
