@@ -52,6 +52,7 @@ module XRay
           ::ActiveRecord::Base.connection_handler.connection_pool_list.each do |p|
             conn = p.connections.select { |c| c.object_id == conn_id }
             pool = p unless conn.nil?
+            return [pool, conn] if !conn.nil? && !conn.empty? && !pool.nil?
           end
           [pool, conn]
         end
