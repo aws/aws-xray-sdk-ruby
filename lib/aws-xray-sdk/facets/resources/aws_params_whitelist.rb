@@ -330,6 +330,15 @@ module XRay
             }
           }
         },
+        SageMakerRuntime: {
+          operations: {
+            invoke_endpoint: {
+              request_parameters: %I[
+                endpoint_name
+              ]
+            }
+          }
+        },
         SNS: {
           operations: {
             publish: {
