@@ -20,12 +20,10 @@ module XRay
         super(*options)
       end
 
-      # HTTP requests to AWS Lambda Ruby Runtime will begin with the
-      # value set in ENV['AWS_LAMBDA_RUNTIME_API']
-      def lambda_runtime_request?(req)
-        ENV['AWS_LAMBDA_RUNTIME_API']  &&
-          req.uri &&
-          req.uri.to_s.start_with?('http://'+ENV['AWS_LAMBDA_RUNTIME_API']+'/')
+      # HTTP requests to AWS Lambda Ruby Runtime will have the address and port
+      # matching the value set in ENV['AWS_LAMBDA_RUNTIME_API']
+      def lambda_runtime_request?
+        ENV['AWS_LAMBDA_RUNTIME_API'] == "#{address}:#{port}"
       end
 
       def xray_sampling_request?(req)
@@ -34,7 +32,7 @@ module XRay
 
       def request(req, body = nil, &block)
         # Do not trace requests to xray or aws lambda runtime
-        if xray_sampling_request?(req) || lambda_runtime_request?(req)
+        if xray_sampling_request?(req) || lambda_runtime_request?
           return super
         end
 
