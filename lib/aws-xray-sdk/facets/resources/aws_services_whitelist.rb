@@ -16,7 +16,7 @@ module XRay
       Budgets
       Cloud9
       CloudDirectory
-      CloudFormatioin
+      CloudFormation
       CloudFront
       CloudHSM
       CloudHSMV2
