@@ -102,6 +102,7 @@ module XRay
       Polly
       Pricing
       RDS
+      RDSDataService
       Redshift
       Rekognition
       ResourceGroups
