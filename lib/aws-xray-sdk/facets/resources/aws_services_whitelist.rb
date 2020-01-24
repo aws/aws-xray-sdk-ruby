@@ -3,17 +3,29 @@ module XRay
   module AwsServices
     # exausted list can be tracked at http://docs.aws.amazon.com/sdk-for-ruby/v3/api/Seahorse/Client/Base.html
     @whitelist = %I[
+      AccessAnalyzer
       ACM
-      APIGateway
+      ACMPCA
       AlexaForBusiness
-      AppStream
-      AppSync
+      Amplify
+      APIGateway
+      ApiGatewayManagementApi
+      ApiGatewayV2
+      AppConfig
       ApplicationAutoScaling
       ApplicationDiscoveryService
+      ApplicationInsights
+      AppMesh
+      AppStream
+      AppSync
       Athena
+      AugmentedAIRuntime
       AutoScaling
+      AutoScalingPlans
+      Backup
       Batch
       Budgets
+      Chime
       Cloud9
       CloudDirectory
       CloudFormation
@@ -29,110 +41,191 @@ module XRay
       CodeBuild
       CodeCommit
       CodeDeploy
+      CodeGuruProfiler
+      CodeGuruReviewer
       CodePipeline
       CodeStar
+      CodeStarconnections
+      CodeStarNotifications
       CognitoIdentity
       CognitoIdentityProvider
       CognitoSync
       Comprehend
+      ComprehendMedical
+      ComputeOptimizer
       ConfigService
-      CostExplore
+      Connect
+      ConnectParticipant
       CostandUsageReportService
-      DAX
-      DataPipeline
+      CostExplore
+      CostExplorer
       DatabaseMigrationService
+      DataExchange
+      DataPipeline
+      DataSync
+      DAX
+      Detective
       DeviceFarm
       DirectConnect
       DirectoryService
+      DLM
+      DocDB
       DynamoDB
       DynamoDBStreams
+      EBS
       EC2
+      EC2InstanceConnect
       ECR
       ECS
       EFS
-      EMR
+      EKS
       ElastiCache
       ElasticBeanstalk
+      ElasticInference
       ElasticLoadBalancing
       ElasticLoadBalancingV2
-      ElasticTranscoder
       ElasticsearchService
+      ElasticTranscoder
+      EMR
+      EventBridge
       Firehose
+      FMS
+      ForecastQueryService
+      ForecastService
+      FraudDetector
+      FSx
       GameLift
       Glacier
+      GlobalAccelerator
       Glue
       Greengrass
+      GroundStation
       GuardDuty
       Health
       IAM
+      Imagebuilder
       ImportExport
       Inspector
       IoT
+      IoT1ClickDevicesService
+      IoT1ClickProjects
+      IoTAnalytics
       IoTDataPlane
+      IoTEvents
+      IoTEventsData
       IoTJobsDataPlane
-      KMS
+      IoTSecureTunneling
+      IoTThingsGraph
+      Kafka
+      Kendra
       Kinesis
       KinesisAnalytics
+      KinesisAnalyticsV2
       KinesisVideo
+      KinesisVideoArchivedMedia
       KinesisVideoArchiveMedia
       KinesisVideoMedia
+      KinesisVideoSignalingChannels
+      KMS
+      LakeFormation
       Lambda
       LambdaPreview
       Lex
       LexModelBuildingService
       LexRuntimeService
+      LicenseManager
       Lightsail
-      MQ
-      MTurk
       MachineLearning
+      Macie
+      ManagedBlockchain
+      MarketplaceCatalog
       MarketplaceCommerceAnalytics
       MarketplaceEntitlementService
       MarketplaceMetering
+      MediaConnect
       MediaConvert
       MediaLive
       MediaPackage
+      MediaPackageVod
       MediaStore
       MediaStoreData
+      MediaTailor
       MigrationHub
+      MigrationHubConfig
       Mobile
+      MQ
+      MTurk
+      Neptune
+      NetworkManager
       OpsWorks
       OpsWorksCM
       Organizations
+      Outposts
+      Personalize
+      PersonalizeEvents
+      PersonalizeRuntime
+      PI
       Pinpoint
+      PinpointEmail
+      PinpointSMSVoice
       Polly
       Pricing
+      QLDB
+      QLDBSession
+      QuickSight
+      RAM
       RDS
       RDSDataService
       Redshift
       Rekognition
       ResourceGroups
       ResourceGroupsTaggingAPI
+      RoboMaker
       Route53
       Route53Domains
+      Route53Resolver
       S3
-      SES
-      SFN
-      SMS
-      SNS
-      SQS
-      SSM
-      STS
-      SWF
+      S3Control
       SageMaker
       SageMakerRuntime
+      SavingsPlans
+      Schemas
+      SecretsManager
+      SecurityHub
       ServerlessApplicationRepository
       ServiceCatalog
       ServiceDiscovery
+      ServiceQuotas
+      SES
+      SESV2
+      SFN
       Shield
+      Signer
       SimpleDB
+      SMS
       Snowball
+      SNS
+      SQS
+      SSM
+      SSO
+      SSOOIDC
       States
       StorageGateway
+      STS
       Support
+      SWF
+      Textract
+      TranscribeService
+      TranscribeStreamingService
+      Transfer
       Translate
       WAF
       WAFRegional
+      WAFV2
       WorkDocs
+      WorkLink
+      WorkMail
+      WorkMailMessageFlow
       WorkSpaces
       XRay
     ]
