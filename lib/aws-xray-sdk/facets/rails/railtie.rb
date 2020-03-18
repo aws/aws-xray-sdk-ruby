@@ -7,7 +7,7 @@ module XRay
     RAILS_OPTIONS = %I[active_record].freeze
 
     initializer("aws-xray-sdk.rack_middleware") do |app|
-      app.middleware.insert 0, Rack::Middleware
+      app.middleware.insert 0, XRay::Rack::Middleware
       app.middleware.use XRay::Rails::ExceptionMiddleware
     end
 
