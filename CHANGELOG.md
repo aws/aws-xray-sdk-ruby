@@ -1,3 +1,13 @@
+0.11.4 (2020-03-31)
+-------------------
+* Bugfix - Fixed issue where wrong DB-connection was returned [PR #35](https://github.com/aws/aws-xray-sdk-ruby/pull/35)
+* Added - Whitelist SageMakerRuntime InvokeEndpoint operation [PR #36](https://github.com/aws/aws-xray-sdk-ruby/pull/36)
+* Bugfix - Do not log Lambda runtime segments [PR #39](https://github.com/aws/aws-xray-sdk-ruby/pull/39)
+* Bugfix - Fix typo of aws services white list [PR #41](https://github.com/aws/aws-xray-sdk-ruby/pull/41)
+* Added - Add missing rds data service sdk [PR #42](https://github.com/aws/aws-xray-sdk-ruby/pull/42)
+* Added - Updated service whitelist [PR #43](https://github.com/aws/aws-xray-sdk-ruby/pull/43)
+* Bugfix - Use full qualified constant name [PR #45](https://github.com/aws/aws-xray-sdk-ruby/pull/45)
+
 0.11.3 (2019-10-31)
 -------------------
 * Added - Lambda instrumentation support [PR #32](https://github.com/aws/aws-xray-sdk-ruby/pull/32)
