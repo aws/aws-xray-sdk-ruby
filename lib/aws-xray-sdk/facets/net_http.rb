@@ -30,9 +30,15 @@ module XRay
         req.path && (req.path == ('/GetSamplingRules') || req.path == ('/SamplingTargets'))
       end
 
+      # Instance Metadata Service provides endpoint 169.254.169.254 to
+      # provide EC2 metadata
+      def ec2_metadata_request?(req)
+        req.uri && req.uri.hostname == '169.254.169.254'
+      end
+
       def request(req, body = nil, &block)
-        # Do not trace requests to xray or aws lambda runtime
-        if xray_sampling_request?(req) || lambda_runtime_request?
+        # Do not trace requests to xray or aws lambda runtime or ec2 metadata endpoint
+        if xray_sampling_request?(req) || lambda_runtime_request? || ec2_metadata_request?(req)
           return super
         end
 

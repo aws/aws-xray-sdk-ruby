@@ -159,10 +159,14 @@ class TestRecorder < Minitest::Test
   end
 
   def test_plugins_runtime_context
-    stub_request(:any, XRay::Plugins::EC2::ID_ADDR)
-      .to_return(body: 'some_id', status: 200)
-    stub_request(:any, XRay::Plugins::EC2::AZ_ADDR)
-      .to_return(body: 'some_az', status: 200)
+    dummy_json = '{\"availabilityZone\" : \"us-east-2a\", \"imageId\" : \"ami-03cca83dd001d4666\",
+                  \"instanceId\" : \"i-07a181803de94c666\", \"instanceType\" : \"t3.xlarge\"}'
+
+    stub_request(:put, 'http://169.254.169.254/latest/api/token')
+      .to_return(status: 200, body: 'some_token', headers: {})
+
+    stub_request(:get, 'http://169.254.169.254/latest/dynamic/instance-identity/document')
+      .to_return(status: 200, body: dummy_json, headers: {})
 
     recorder = XRay::Recorder.new
     config = {
