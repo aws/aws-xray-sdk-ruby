@@ -1,3 +1,7 @@
+0.11.5 (2020-06-10)
+-------------------
+* Added - Added support for IMDSv2 for EC2 metadata [PR #48](https://github.com/aws/aws-xray-sdk-ruby/pull/48)
+
 0.11.4 (2020-03-31)
 -------------------
 * Bugfix - Fixed issue where wrong DB-connection was returned [PR #35](https://github.com/aws/aws-xray-sdk-ruby/pull/35)
