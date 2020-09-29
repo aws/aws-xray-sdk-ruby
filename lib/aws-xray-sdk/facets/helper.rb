@@ -2,7 +2,7 @@ require 'aws-xray-sdk/model/trace_header'
 
 module XRay
   module Facets
-    # Hepler functions shared for all external frameworks/libraries
+    # Helper functions shared for all external frameworks/libraries
     # like make sampling decisions from incoming http requests etc.
     module Helper
       TRACE_HEADER = 'X-Amzn-Trace-Id'.freeze
