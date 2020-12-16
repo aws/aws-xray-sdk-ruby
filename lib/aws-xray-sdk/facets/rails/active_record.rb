@@ -17,7 +17,12 @@ module XRay
           pool, conn = get_pool_n_conn(payload[:connection_id])
 
           return if IGNORE_OPS.include?(payload[:name]) || pool.nil? || conn.nil?
-          db_config = pool.spec.config
+          # The spec notation is Rails < 6.1, later this can be found in the db_config
+          db_config = if pool.respond_to?(:spec)
+                        pool.spec.config
+                      else
+                        pool.db_config.config.symbolize_keys
+                      end
           name, sql = build_name_sql_meta config: db_config, conn: conn
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
           # subsegment is nil in case of context missing
