@@ -21,7 +21,7 @@ module XRay
           db_config = if pool.respond_to?(:spec)
                         pool.spec.config
                       else
-                        pool.db_config.config.symbolize_keys
+                        pool.db_config.configuration_hash
                       end
           name, sql = build_name_sql_meta config: db_config, conn: conn
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
