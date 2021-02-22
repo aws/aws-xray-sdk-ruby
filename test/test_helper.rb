@@ -1,4 +1,5 @@
 require 'simplecov'
+require 'simplecov_small_badge'
 SimpleCov.start
 
 require 'minitest/autorun'
