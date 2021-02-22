@@ -3,7 +3,6 @@
 ![Coverage](https://wangzlei.github.io/aws-xray-sdk-ruby/badges/coverage_badge_total.png)
 ![Coverage1](https://wangzlei.github.io/aws-xray-sdk-ruby/coverage_badge_total.svg)
 
-
 # AWS X-Ray SDK for Ruby (beta)
 
 ![Screenshot of the AWS X-Ray console](https://raw.githubusercontent.com/aws/aws-xray-sdk-ruby/master/images/example_servicemap.png)
