@@ -17,7 +17,7 @@ module XRay
           { elastic_beanstalk: MultiJson.load(file) }
         rescue StandardError => e
           @@aws = {}
-          Logging.logger.warn %(can not get the environment config due to: #{e.message}.)
+          Logging.logger.warn %(cannot get the environment config due to: #{e.message}.)
         end
       end
     end

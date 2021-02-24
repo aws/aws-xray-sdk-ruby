@@ -15,7 +15,7 @@ module XRay
           { ecs: { container: Socket.gethostname } }
         rescue StandardError => e
           @@aws = {}
-          Logging.logger.warn %(can not get the ecs container hostname due to: #{e.message}.)
+          Logging.logger.warn %(cannot get the ecs container hostname due to: #{e.message}.)
         end
       end
     end
