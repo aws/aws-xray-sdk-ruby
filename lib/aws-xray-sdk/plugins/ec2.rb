@@ -33,7 +33,7 @@ module XRay
         begin
           return do_request(req)
         rescue StandardError => e
-          Logging.logger.warn %(can not get the IMDSv2 token due to: #{e.message}.)
+          Logging.logger.warn %(cannot get the IMDSv2 token due to: #{e.message}.)
           ''
         end
       end
@@ -50,7 +50,7 @@ module XRay
           metadata_json = do_request(req)
           return parse_metadata(metadata_json)
         rescue StandardError => e
-          Logging.logger.warn %(can not get the ec2 instance metadata due to: #{e.message}.)
+          Logging.logger.warn %(cannot get the ec2 instance metadata due to: #{e.message}.)
           {}
         end
       end

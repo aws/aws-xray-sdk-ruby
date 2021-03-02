@@ -10,7 +10,7 @@ module XRay
 
   class ContextMissingError < AwsXRaySdkError
     def initialize
-      super('Can not find any active segment or subsegment.')
+      super('Cannot find any active segment or subsegment.')
     end
   end
 

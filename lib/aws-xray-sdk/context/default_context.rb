@@ -57,7 +57,7 @@ module XRay
       when 'RUNTIME_ERROR'
         raise ContextMissingError
       when 'LOG_ERROR'
-        logger.error %(can not find the current context.)
+        logger.error %(cannot find the current context.)
       end
       nil
     end
