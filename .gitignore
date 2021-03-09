@@ -14,3 +14,5 @@ tmp
 test/tmp
 coverage
 vendor/
+
+.idea
