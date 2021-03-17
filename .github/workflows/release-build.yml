@@ -33,6 +33,8 @@ jobs:
       # Implicitly verifies that CHANGELOG and version.rb match
       - name: Push gem
         run: gem push aws-xray-sdk-${{ env.VERSION }}.gem
+      - name: Clear credentials
+        run: rm ~/.gem/credentials
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
