@@ -25,6 +25,11 @@ jobs:
         run: echo "VERSION_NO_DOTS=$(echo $VERSION | sed s/\\.//g)" >> $GITHUB_ENV
       - name: Build gem
         run: gem build aws-xray-sdk.gemspec
+      - name: Set API key credentials
+        run: |
+          echo ":rubygems_api_key: $RUBYGEMS_API_KEY" > ~/.gem/credentials
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
       # Implicitly verifies that CHANGELOG and version.rb match
       - name: Push gem
         run: gem push aws-xray-sdk-${{ env.VERSION }}.gem
