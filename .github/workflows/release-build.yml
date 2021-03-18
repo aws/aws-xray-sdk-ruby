@@ -1,0 +1,47 @@
+name: Release Build
+
+on:
+  push:
+    paths:
+      - 'CHANGELOG.md'
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+          bundler-cache: true
+      - run: bundle exec rake test
+      - name: Extract version from CHANGELOG.md
+        run: echo "VERSION=$(echo $(head -n 1 CHANGELOG.md) | awk -F ' ' '{print $1}')" >> $GITHUB_ENV
+      - name: Extract date from CHANGELOG.md
+        run: echo "DATE=$(echo $(head -n 1 CHANGELOG.md) | awk -F '[()]' '{print $2}')" >> $GITHUB_ENV
+      - name: Remove dots for VERSION for use in release notes
+        run: echo "VERSION_NO_DOTS=$(echo $VERSION | sed s/\\.//g)" >> $GITHUB_ENV
+      - name: Build gem
+        run: gem build aws-xray-sdk.gemspec
+      - name: Set API key credentials
+        run: |
+          echo ":rubygems_api_key: $RUBYGEMS_API_KEY" > ~/.gem/credentials
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+      # Implicitly verifies that CHANGELOG and version.rb match
+      - name: Push gem
+        run: gem push aws-xray-sdk-${{ env.VERSION }}.gem
+      - name: Clear credentials
+        run: rm ~/.gem/credentials
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          body: "Please refer the [Changelog](https://github.com/aws/aws-xray-sdk-ruby/blob/master/CHANGELOG.md#${{ env.VERSION_NO_DOTS }}-${{ env.DATE }}) for more details."
+          prerelease: false
