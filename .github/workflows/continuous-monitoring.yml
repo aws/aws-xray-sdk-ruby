@@ -1,0 +1,21 @@
+name: Continuous monitoring of distribution channels
+on:
+  schedule:
+    - cron:  '0 */6 * * *'
+
+jobs:
+  smoke-tests:
+    name: Run smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+        env:
+          TEST_DISTRIBUTION: true
+      - name: Run distribution test
+        run: bundle exec rake test_distribution
+        env:
+          TEST_DISTRIBUTION: true
