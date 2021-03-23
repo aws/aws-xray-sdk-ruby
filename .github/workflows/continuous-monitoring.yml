@@ -11,12 +11,31 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v1
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7
         env:
           TEST_DISTRIBUTION: true
+      
       - name: Run distribution test
+        id: distribution-availability
         run: bundle exec rake test_distribution
         env:
           TEST_DISTRIBUTION: true
+          
+      - name: Publish metric on X-Ray Ruby SDK distribution availability
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.distribution-availability.outcome }}" == "failure" ]]; then
+            aws cloudwatch put-metric-data --metric-name XRayRubySDKDistributionAvailability --dimensions failure=rate --namespace MonitorSDK --value 1 --timestamp $(date +%s)
+          else
+            aws cloudwatch put-metric-data --metric-name XRayRubySDKDistributionAvailability --dimensions failure=rate --namespace MonitorSDK --value 0 --timestamp $(date +%s)
+          fi
