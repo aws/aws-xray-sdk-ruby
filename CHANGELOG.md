@@ -1,4 +1,3 @@
-
 0.12.0 (2021-04-01)
 -------------------
 * Added - Added support for Rails 6.1 ActiveRecord [PR #57](https://github.com/aws/aws-xray-sdk-ruby/pull/57)
