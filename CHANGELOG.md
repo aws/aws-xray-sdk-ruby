@@ -1,3 +1,9 @@
+
+0.12.0 (2021-04-01)
+-------------------
+* Added - Added support for Rails 6.1 ActiveRecord [PR #57](https://github.com/aws/aws-xray-sdk-ruby/pull/57)
+* Fixed - Fixed grammar of log messages [PR #61](https://github.com/aws/aws-xray-sdk-ruby/pull/61)
+
 0.11.5 (2020-06-10)
 -------------------
 * Added - Added support for IMDSv2 for EC2 metadata [PR #48](https://github.com/aws/aws-xray-sdk-ruby/pull/48)
