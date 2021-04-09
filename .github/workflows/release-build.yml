@@ -28,13 +28,14 @@ jobs:
       - name: Set API key credentials
         run: |
           echo ":rubygems_api_key: $RUBYGEMS_API_KEY" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
       # Implicitly verifies that CHANGELOG and version.rb match
       - name: Push gem
         run: gem push aws-xray-sdk-${{ env.VERSION }}.gem
       - name: Clear credentials
-        run: rm ~/.gem/credentials
+        run: rm -f ~/.gem/credentials
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
