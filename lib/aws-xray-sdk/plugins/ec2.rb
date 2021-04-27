@@ -5,12 +5,14 @@ require 'aws-xray-sdk/logger'
 module XRay
   module Plugins
     # A plugin that gets the EC2 instance_id, availabiity_zone, instance_type, and ami_id if running on an EC2 instance.
+    # The plugin queries IMDSv2 endpoint with X-aws-ec2-metadata-token-ttl-seconds as 60 seconds, and fallback to using
+    # IMDSv1 endpoint.
+    # More details about EC2 instance metadata retreival: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html#instancedata-data-retrieval
     module EC2
       include Logging
 
       ORIGIN = 'AWS::EC2::Instance'.freeze
 
-      # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html#instancedata-data-retrieval
       METADATA_BASE_URL = 'http://169.254.169.254/latest'.freeze
 
       def self.aws

@@ -30,8 +30,6 @@ module XRay
         req.path && (req.path == ('/GetSamplingRules') || req.path == ('/SamplingTargets'))
       end
 
-      # Instance Metadata Service provides endpoint 169.254.169.254 to
-      # provide EC2 metadata
       def ec2_metadata_request?(req)
         req.uri && req.uri.hostname == '169.254.169.254'
       end
