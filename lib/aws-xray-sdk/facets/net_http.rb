@@ -29,7 +29,10 @@ module XRay
       def xray_sampling_request?(req)
         req.path && (req.path == ('/GetSamplingRules') || req.path == ('/SamplingTargets'))
       end
-
+      
+      # HTTP requests to IMDS endpoint will be made to 169.254.169.254
+      # for both IMDSv1 and IMDSv2 with the latter including the 
+      # X-aws-ec2-metadata-token-ttl-seconds header.
       def ec2_metadata_request?(req)
         req.uri && req.uri.hostname == '169.254.169.254'
       end
