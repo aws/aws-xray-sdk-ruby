@@ -103,6 +103,7 @@ module XRay
       GuardDuty
       Health
       IAM
+      IVS
       Imagebuilder
       ImportExport
       Inspector
