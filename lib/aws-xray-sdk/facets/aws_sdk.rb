@@ -1,7 +1,7 @@
 require 'aws-sdk-core'
 require 'aws-xray-sdk/facets/helper'
-require 'aws-xray-sdk/facets/resources/aws_params_whitelist'
-require 'aws-xray-sdk/facets/resources/aws_services_whitelist'
+require 'aws-xray-sdk/facets/resources/aws_params_allowlist'
+require 'aws-xray-sdk/facets/resources/aws_services_allowlist'
 
 module XRay
   class AwsSDKPlugin < Seahorse::Client::Plugin
