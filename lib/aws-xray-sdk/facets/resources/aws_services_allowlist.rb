@@ -136,6 +136,7 @@ module XRay
       LexRuntimeService
       LicenseManager
       Lightsail
+      LocationService
       MachineLearning
       Macie
       ManagedBlockchain

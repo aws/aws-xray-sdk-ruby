@@ -1,3 +1,8 @@
+master
+-------------------
+
+* Added - Whitelist the LocationService client for instrumentation [PR #77](https://github.com/aws/aws-xray-sdk-ruby/pull/77).
+
 0.12.0 (2021-04-01)
 -------------------
 * Added - Added support for Rails 6.1 ActiveRecord [PR #57](https://github.com/aws/aws-xray-sdk-ruby/pull/57)
@@ -39,7 +44,7 @@
 * **Breaking**: The sampling modules related to local sampling rules have been renamed and moved to `sampling/local` namespace.
 * **Breaking**: The default json serializer is switched to `multi_json` for experimental JRuby support. Now you need to specify `oj` or `jrjackson` in Gemfile. [PR#5](https://github.com/aws/aws-xray-sdk-ruby/pull/5)
 * **Breaking**: The SDK now requires `aws-sdk-xray` >= `1.4.0`.
-* Feature: Environment variable `AWS_XRAY_DAEMON_ADDRESS` now takes an additional notation in `tcp:127.0.0.1:2000 udp:127.0.0.2:2001` to set TCP and UDP destination separately. By default it assumes a X-Ray daemon listening to both UDP and TCP traffic on `127.0.0.1:2000`. 
+* Feature: Environment variable `AWS_XRAY_DAEMON_ADDRESS` now takes an additional notation in `tcp:127.0.0.1:2000 udp:127.0.0.2:2001` to set TCP and UDP destination separately. By default it assumes a X-Ray daemon listening to both UDP and TCP traffic on `127.0.0.1:2000`.
 * Bugfix - Call only once if `current_entity` is nil. [PR#9](https://github.com/aws/aws-xray-sdk-ruby/pull/9)
 
 0.10.2 (2018-03-30)
