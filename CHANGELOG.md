@@ -1,6 +1,5 @@
-master
+0.13.0 (2022-01-04)
 -------------------
-
 * Added - Whitelist the LocationService client for instrumentation [PR #77](https://github.com/aws/aws-xray-sdk-ruby/pull/77).
 
 0.12.0 (2021-04-01)
