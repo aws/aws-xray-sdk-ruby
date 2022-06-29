@@ -1,4 +1,10 @@
-[![Build Status](https://travis-ci.org/aws/aws-xray-sdk-ruby.svg?branch=master)](https://travis-ci.org/aws/aws-xray-sdk-ruby)
+[![Build Status](https://github.com/aws/aws-xray-sdk-ruby/actions/workflows/continuous-build.yml/badge.svg)
+
+### :mega: OpenTelemetry Ruby with AWS X-Ray
+
+AWS X-Ray recommends using AWS Distro for OpenTelemetry (ADOT) to instrument your application **instead of this X-Ray SDK** due to its wider range of features and instrumentations. See the [AWS X-Ray docs on Working with Ruby](https://docs.aws.amazon.com/xray/latest/devguide/xray-ruby.html) for more help with choosing between ADOT and X-Ray SDK.
+
+If you want additional features when tracing your Ruby applications, please [open an issue on the OpenTelemetry Ruby Instrumentation repository](https://github.com/open-telemetry/opentelemetry-ruby-contrib/issues/new?labels=enhancement&title=X-Ray%20Compatible%20Feature%20Request).
 
 # AWS X-Ray SDK for Ruby (beta)
 
@@ -16,6 +22,7 @@ gem 'aws-xray-sdk'
 gem 'oj', platform: :mri
 gem 'jrjackson', platform: :jruby
 ```
+
 Then run `bundle install`.
 
 ## Getting Help
@@ -23,9 +30,9 @@ Then run `bundle install`.
 Use the following community resources for getting help with the SDK. We use the GitHub
 issues for tracking bugs and feature requests.
 
-* Ask a question in the [AWS X-Ray Forum](https://forums.aws.amazon.com/forum.jspa?forumID=241&start=0).
-* Open a support ticket with [AWS Support](http://docs.aws.amazon.com/awssupport/latest/user/getting-started.html).
-* If you think you may have found a bug, open an [issue](https://github.com/aws/aws-xray-sdk-ruby/issues/new).
+- Ask a question in the [AWS X-Ray Forum](https://forums.aws.amazon.com/forum.jspa?forumID=241&start=0).
+- Open a support ticket with [AWS Support](http://docs.aws.amazon.com/awssupport/latest/user/getting-started.html).
+- If you think you may have found a bug, open an [issue](https://github.com/aws/aws-xray-sdk-ruby/issues/new).
 
 ## Opening Issues
 
@@ -92,8 +99,8 @@ XRay.recorder.configure(user_config)
 require 'aws-xray-sdk/lambda'
 # aws-sdk and http calls from here on will be instrumented
 ```
-See also [lib/aws-xray-sdk/lambda.rb](lib/aws-xray-sdk/lambda.rb)
 
+See also [lib/aws-xray-sdk/lambda.rb](lib/aws-xray-sdk/lambda.rb)
 
 **Working with Rails**
 
