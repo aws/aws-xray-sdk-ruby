@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/aws/aws-xray-sdk-ruby/actions/workflows/continuous-build.yml/badge.svg)
+![Build Status](https://github.com/aws/aws-xray-sdk-ruby/actions/workflows/continuous-build.yml/badge.svg)
 
 ### :mega: OpenTelemetry Ruby with AWS X-Ray
 
