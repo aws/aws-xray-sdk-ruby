@@ -345,6 +345,11 @@ module XRay
               request_parameters: %I[
                 topic_arn
               ]
+            },
+            publish_batch: {
+              request_parameters: %I[
+                topic_arn
+              ]
             }
           }
         }
