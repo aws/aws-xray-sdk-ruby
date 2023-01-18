@@ -19,7 +19,7 @@ class TestContext < Minitest::Test
   def test_change_context_missing
     context = XRay::DefaultContext.new
     context.clear!
-    context.context_missing = 'UNKWON'
+    context.context_missing = 'INVALID_STRATEGY'
     assert_equal 'LOG_ERROR', context.context_missing
     context.context_missing = 'RUNTIME_ERROR'
     assert_equal 'RUNTIME_ERROR', context.context_missing
@@ -35,6 +35,13 @@ class TestContext < Minitest::Test
   end
 
   def test_log_error
+    context = XRay::DefaultContext.new
+    context.clear!
+    context.context_missing = 'LOG_ERROR'
+    refute context.current_entity
+  end
+
+  def test_default_context_missing
     context = XRay::DefaultContext.new
     context.clear!
     refute context.current_entity
