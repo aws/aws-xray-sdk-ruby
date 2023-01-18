@@ -39,8 +39,23 @@ class TestRecorder < Minitest::Test
     segment = @@recorder.begin_segment name: name
     @@recorder.end_segment
     assert_equal segment, @@recorder.emitter.entities[0]
+  end
+
+  def test_send_segment_with_ctx_missing_runtime_error
+    recorder = XRay::Recorder.new
+    config = {
+      context_missing: 'RUNTIME_ERROR',
+      sampling: false,
+      emitter: XRay::TestHelper::StubbedEmitter.new,
+      sampler: XRay::TestHelper::StubbedDefaultSampler.new
+    }
+    recorder.configure(config)
+
+    segment = recorder.begin_segment name: name
+    recorder.end_segment
+    assert_equal segment, recorder.emitter.entities[0]
     assert_raises XRay::ContextMissingError do
-      @@recorder.current_segment
+      recorder.current_segment
     end
   end
 
