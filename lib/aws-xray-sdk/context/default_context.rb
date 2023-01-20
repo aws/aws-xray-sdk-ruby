@@ -13,7 +13,7 @@ module XRay
     LOCAL_KEY = '_aws_xray_entity'.freeze
     CONTEXT_MISSING_KEY = 'AWS_XRAY_CONTEXT_MISSING'.freeze
     SUPPORTED_STRATEGY = %w[RUNTIME_ERROR LOG_ERROR IGNORE_ERROR].freeze
-    DEFAULT_STRATEGY = SUPPORTED_STRATEGY[0]
+    DEFAULT_STRATEGY = SUPPORTED_STRATEGY[1]
 
     attr_reader :context_missing
 
