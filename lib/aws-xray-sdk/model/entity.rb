@@ -155,7 +155,7 @@ module XRay
       if (a = annotations.to_h) && !a.empty?
         h[:annotations] = a
       end
-      if (m = @metadata) && !m.to_h.empty?
+      if (m = metadata) && !m.to_h.empty?
         h[:metadata] = m.to_h
       end
 
