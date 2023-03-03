@@ -155,7 +155,8 @@ module XRay
       if (a = annotations.to_h) && !a.empty?
         h[:annotations] = a
       end
-      if (m = @metadata) && !m.to_h.empty?
+      # make sure @metadata is defined before evaluating it, to prevent warning `variable @metadata not initialized`
+      if (defined?(@metadata) && m = @metadata) && !m.to_h.empty?
         h[:metadata] = m.to_h
       end
 
