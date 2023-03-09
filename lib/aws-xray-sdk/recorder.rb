@@ -24,7 +24,7 @@ module XRay
     # only keeps one segment at a time. Create a second one without
     # closing existing one will overwrite the existing one.
     # @return [Segment] thew newly created segment.
-    def begin_segment(name, trace_id: nil, parent_id: nil, sampled: nil)
+    def begin_segment(name: nil, trace_id: nil, parent_id: nil, sampled: nil)
       seg_name = name || config.name
       raise SegmentNameMissingError if seg_name.to_s.empty?
 
