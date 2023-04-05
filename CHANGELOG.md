@@ -1,3 +1,9 @@
+0.14.0 (2023-04-05)
+-------------------
+* Added - Allow list TopicArn for SNS PublishBatch request [PR #82](https://github.com/aws/aws-xray-sdk-ruby/pull/82).
+* Update - Change context missing strategy behaviour to Log Error [PR #83](https://github.com/aws/aws-xray-sdk-ruby/pull/83).
+* Added - Prevent warnings variable @metadata not initialised [PR #86](https://github.com/aws/aws-xray-sdk-ruby/pull/86).
+
 0.13.0 (2022-01-04)
 -------------------
 * Added - Whitelist the LocationService client for instrumentation [PR #77](https://github.com/aws/aws-xray-sdk-ruby/pull/77).
