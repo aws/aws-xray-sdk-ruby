@@ -24,6 +24,7 @@ module XRay
                         pool.db_config.configuration_hash
                       end
           name, sql = build_name_sql_meta config: db_config, conn: conn
+          sql[:sanitized_query] = payload[:sql]
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
           # subsegment is nil in case of context missing
           return if subsegment.nil?
