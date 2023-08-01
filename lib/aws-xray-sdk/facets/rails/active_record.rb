@@ -14,7 +14,7 @@ module XRay
 
         def record(transaction)
           payload = transaction.payload
-          pool, conn = get_pool_n_conn(payload[:connection_id])
+          pool, conn = get_pool_n_conn(payload[:connection].object_id)
 
           return if IGNORE_OPS.include?(payload[:name]) || pool.nil? || conn.nil?
           # The spec notation is Rails < 6.1, later this can be found in the db_config
