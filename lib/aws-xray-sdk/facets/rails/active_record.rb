@@ -27,9 +27,9 @@ module XRay
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
           # subsegment is nil in case of context missing
           return if subsegment.nil?
-          subsegment.start_time = transaction.time.to_f
+          subsegment.start_time = transaction.time.to_f / 1000.0
           subsegment.sql = sql
-          XRay.recorder.end_subsegment end_time: transaction.end.to_f
+          XRay.recorder.end_subsegment end_time: transaction.end.to_f / 1000.0
         end
 
         private
