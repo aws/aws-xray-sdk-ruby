@@ -3,8 +3,6 @@ require 'aws-xray-sdk/logger'
 
 module XRay
   module Plugins
-    # Due to lack of ECS container metadata service, the only host information
-    # available is the host name.
     module ECS
       include Logging
 
@@ -39,7 +37,7 @@ module XRay
           metadata_json = do_request(req)
           return parse_metadata(metadata_json)
         rescue StandardError => e
-          Logging.logger.warn %(cannot get the ecs instance metadata due to: #{e.message}.)
+          Logging.logger.warn %(cannot get the ecs instance metadata due to: #{e.message}. Make sure you are using Fargate platform version >=1.4.0)
           { ecs: {}, cloudwatch_logs: {} }
         end
       end
