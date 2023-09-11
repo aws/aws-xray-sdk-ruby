@@ -29,6 +29,7 @@ class TestPlugins < Minitest::Test
     WebMock.reset!
   end
 
+  # EC2 Plugin
   def test_ec2_metadata_v2_successful
     dummy_json = '{\"availabilityZone\" : \"us-east-2a\", \"imageId\" : \"ami-03cca83dd001d4666\",
                   \"instanceId\" : \"i-07a181803de94c666\", \"instanceType\" : \"t3.xlarge\"}'
@@ -85,21 +86,7 @@ class TestPlugins < Minitest::Test
     WebMock.reset!
   end
 
-  def test_get_runtime_context
-    XRay::Plugins::ElasticBeanstalk.aws
-    stub_request(:any, XRay::Plugins::EC2::METADATA_BASE_URL + '/api/token')
-      .to_raise(StandardError)
-    stub_request(:any, XRay::Plugins::EC2::METADATA_BASE_URL + '/dynamic/instance-identity/document')
-      .to_raise(StandardError)
-    stub_request(:any, XRay::Plugins::ECS::METADATA_BASE_URL + '/api/token')
-      .to_raise(StandardError)
-    stub_request(:any, XRay::Plugins::ECS::METADATA_BASE_URL + '/dynamic/instance-identity/document')
-      .to_raise(StandardError)
-    XRay::Plugins::EC2.aws
-    XRay::Plugins::ECS.aws
-    WebMock.reset!
-  end
-
+  # ECS Plugin
   def test_ecs_metadata_v2_successful
     dummy_json = '{\"availabilityZone\" : \"us-east-2a\", \"imageId\" : \"ami-03cca83dd001d4666\",
                   \"instanceId\" : \"i-07a181803de94c666\", \"instanceType\" : \"t3.xlarge\"}'
@@ -143,7 +130,7 @@ class TestPlugins < Minitest::Test
     assert expected, XRay::Plugins::ECS.aws
     WebMock.reset!
   end
-  
+
   def test_ecs_metadata_fail
     stub_request(:put, XRay::Plugins::ECS::METADATA_BASE_URL + '/api/token')
       .to_raise(StandardError)
