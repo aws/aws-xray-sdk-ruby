@@ -114,14 +114,20 @@ class TestPlugins < Minitest::Test
     stub_request(:get, dummy_metadata_uri)
       .to_raise(StandardError)
 
-    expected = {:ecs=>nil, :cloudwatch_logs=>nil}
+    expected = {
+      ecs: {container: Socket.gethostname},
+      cloudwatch_logs: {}
+    }
     assert_equal expected, XRay::Plugins::ECS.aws
     WebMock.reset!
     ENV.delete(XRay::Plugins::ECS::METADATA_ENV_KEY)
   end
 
   def test_ecs_metadata_not_defined
-    expected = {:ecs=>nil, :cloudwatch_logs=>nil}
+    expected = {
+      ecs: {container: Socket.gethostname},
+      cloudwatch_logs: {}
+    }
     assert_equal expected, XRay::Plugins::ECS.aws
     WebMock.reset!
   end

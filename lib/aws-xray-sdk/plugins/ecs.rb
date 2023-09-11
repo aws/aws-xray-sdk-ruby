@@ -15,8 +15,14 @@ module XRay
       METADATA_ENV_KEY = 'ECS_CONTAINER_METADATA_URI_V4'
 
       def self.aws
-        @@aws = {}
         metadata = get_metadata()
+
+        begin
+          metadata[:ecs][:container] = Socket.gethostname
+        rescue StandardError => e
+          Logging.logger.warn %(cannot get the ecs container hostname due to: #{e.message}.)
+          metadata[:ecs][:container] = nil
+        end
 
         @@aws = {
           ecs: metadata[:ecs],
@@ -34,23 +40,15 @@ module XRay
           return parse_metadata(metadata_json)
         rescue StandardError => e
           Logging.logger.warn %(cannot get the ecs instance metadata due to: #{e.message}.)
-          {}
+          { ecs: {}, cloudwatch_logs: {} }
         end
       end
 
       def self.parse_metadata(json_str)
         data = JSON(json_str)
 
-        begin
-          container_hostname = Socket.gethostname
-        rescue StandardError => e
-          @@aws = {}
-          Logging.logger.warn %(cannot get the ecs container hostname due to: #{e.message}.)
-        end
-
         metadata = {
           ecs: {
-            container: container_hostname,
             container_arn: data['ContainerARN'],
           },
           cloudwatch_logs: {
