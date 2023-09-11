@@ -224,6 +224,7 @@ module XRay
         aws.merge! xray_meta
         cloudwatch_meta = {
           cloudwatch_logs: {
+            # Help me: Are the log_group and arn for already available somewhere in the SDK ?
             log_group: "???"
             arn: "???"
           }
