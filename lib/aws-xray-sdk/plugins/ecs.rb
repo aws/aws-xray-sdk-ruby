@@ -66,16 +66,16 @@ module XRay
         end
 
         metadata = {
-          'ecs': {
-            'container': container_hostname,
-            'container_arn': data['ContainerARN'],
+          ecs: {
+            container: container_hostname,
+            container_arn: data['ContainerARN'],
           },
-          'cloudwatch_logs': {
-            'log_driver': data['LogDriver'],
-            'log_option': data['LogOptions'],
-            'log_group': data['awslogs-group'],
-            'log_region': data['awslogs-region'],
-            'arn': data['ContainerARN']
+          cloudwatch_logs: {
+            log_driver: data['LogDriver'],
+            log_option: data['LogOptions'],
+            log_group: data['awslogs-group'],
+            log_region: data['awslogs-region'],
+            arn: data['ContainerARN']
           }
         }
 
