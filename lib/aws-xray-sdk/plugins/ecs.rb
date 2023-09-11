@@ -18,7 +18,7 @@ module XRay
         metadata = get_metadata(token)
 
         @@aws = {
-          { ecs: { container: metadata[:ecs] } },
+          ecs: { container: metadata[:ecs] },
           cloudwatch_logs: metadata[:cloudwatch_logs]
         }
       end
