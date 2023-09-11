@@ -225,7 +225,7 @@ module XRay
         cloudwatch_meta = {
           cloudwatch_logs: {
             # Help me: Are the log_group and arn for already available somewhere in the SDK ?
-            log_group: "???"
+            log_group: "???",
             arn: "???"
           }
         }
