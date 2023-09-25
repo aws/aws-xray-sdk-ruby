@@ -25,6 +25,7 @@ class TestPlugins < Minitest::Test
     WebMock.reset!
   end
 
+  # EC2 Plugin
   def test_ec2_metadata_v2_successful
     dummy_json = '{\"availabilityZone\" : \"us-east-2a\", \"imageId\" : \"ami-03cca83dd001d4666\",
                   \"instanceId\" : \"i-07a181803de94c666\", \"instanceType\" : \"t3.xlarge\"}'
@@ -43,6 +44,7 @@ class TestPlugins < Minitest::Test
         ami_id: 'ami-03cca83dd001d4666'
       }
     }
+    # We should probably use `assert_equal` here ? Always true otherwise...
     assert expected, XRay::Plugins::EC2.aws
     WebMock.reset!
   end
@@ -78,6 +80,55 @@ class TestPlugins < Minitest::Test
 
     expected = {}
     assert expected, XRay::Plugins::EC2.aws
+    WebMock.reset!
+  end
+
+  # ECS Plugin
+  def test_ecs_metadata_successful
+    dummy_metadata_uri = 'http://169.254.170.2/v4/a_random_id'
+    dummy_json = {
+      "ContainerARN"=>"arn:aws:ecs:eu-central-1:an_id:container/a_cluster/a_cluster_id/a_task_id",
+      "LogOptions"=>{"awslogs-group"=>"/ecs/a_service_name", "awslogs-region"=>"eu-central-1", "awslogs-stream"=>"ecs/a_service_name/a_task_id"},
+    }
+
+    ENV[XRay::Plugins::ECS::METADATA_ENV_KEY] = dummy_metadata_uri
+    stub_request(:get, dummy_metadata_uri)
+      .to_return(status: 200, body: dummy_json.to_json, headers: {})
+
+    expected = {
+      ecs: {
+        container: Socket.gethostname,
+        container_arn: 'arn:aws:ecs:eu-central-1:an_id:container/a_cluster/a_cluster_id/a_task_id',
+      },
+      cloudwatch_logs: {:log_group=>"/ecs/a_service_name", :log_region=>"eu-central-1", :arn=>"arn:aws:ecs:eu-central-1:an_id:container/a_cluster/a_cluster_id/a_task_id"}
+    }
+    assert_equal expected, XRay::Plugins::ECS.aws
+    WebMock.reset!
+    ENV.delete(XRay::Plugins::ECS::METADATA_ENV_KEY)
+  end
+
+  def test_ecs_metadata_fail
+    dummy_metadata_uri = 'http://169.254.170.2/v4/a_random_id'
+    ENV['ECS_CONTAINER_METADATA_URI_V4'] = dummy_metadata_uri
+
+    stub_request(:get, dummy_metadata_uri)
+      .to_raise(StandardError)
+
+    expected = {
+      ecs: {container: Socket.gethostname},
+      cloudwatch_logs: {}
+    }
+    assert_equal expected, XRay::Plugins::ECS.aws
+    WebMock.reset!
+    ENV.delete(XRay::Plugins::ECS::METADATA_ENV_KEY)
+  end
+
+  def test_ecs_metadata_not_defined
+    expected = {
+      ecs: {container: Socket.gethostname},
+      cloudwatch_logs: {}
+    }
+    assert_equal expected, XRay::Plugins::ECS.aws
     WebMock.reset!
   end
 end
