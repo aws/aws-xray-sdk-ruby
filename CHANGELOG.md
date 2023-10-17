@@ -1,3 +1,7 @@
+0.15.0 (2023-10-18)
+-------------------
+* Update - Add ECS metadata allowing cloudwatch-logs to be linked with traces [PR #93](https://github.com/aws/aws-xray-sdk-ruby/pull/93)
+
 0.14.0 (2023-04-05)
 -------------------
 * Added - Allow list TopicArn for SNS PublishBatch request [PR #82](https://github.com/aws/aws-xray-sdk-ruby/pull/82).
