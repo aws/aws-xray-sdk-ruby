@@ -15,7 +15,7 @@ module XRay
         def record(transaction)
           payload = transaction.payload
           pool, conn = get_pool_n_conn(payload[:connection_id])
-
+  
           return if IGNORE_OPS.include?(payload[:name]) || pool.nil? || conn.nil?
           # The spec notation is Rails < 6.1, later this can be found in the db_config
           db_config = if pool.respond_to?(:spec)
@@ -24,12 +24,13 @@ module XRay
                         pool.db_config.configuration_hash
                       end
           name, sql = build_name_sql_meta config: db_config, conn: conn
+          sql[:sanitized_query] = payload.fetch(:sql)
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
           # subsegment is nil in case of context missing
           return if subsegment.nil?
-          subsegment.start_time = transaction.time.to_f
+          subsegment.start_time = (transaction.time / 1000).to_f
           subsegment.sql = sql
-          XRay.recorder.end_subsegment end_time: transaction.end.to_f
+          XRay.recorder.end_subsegment end_time: (transaction.end / 1000).to_f
         end
 
         private
