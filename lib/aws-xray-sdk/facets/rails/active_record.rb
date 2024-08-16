@@ -1,4 +1,5 @@
 require 'active_record'
+require 'aws-xray-sdk/utils/math_utils'
 
 module XRay
   module Rails
@@ -27,9 +28,14 @@ module XRay
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
           # subsegment is nil in case of context missing
           return if subsegment.nil?
-          subsegment.start_time = transaction.time.to_f
+          
+          # X-Ray SDK expects time in seconds with up to nanosecond precision.
+          exponent = get_exponent(transaction.time.to_f)
+          division_factor = 10 ** (exponent - 9)
+
+          subsegment.start_time = transaction.time.to_f / division_factor
           subsegment.sql = sql
-          XRay.recorder.end_subsegment end_time: transaction.end.to_f
+          XRay.recorder.end_subsegment end_time: transaction.end.to_f / division_factor
         end
 
         private
