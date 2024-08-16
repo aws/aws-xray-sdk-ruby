@@ -28,14 +28,10 @@ module XRay
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
           # subsegment is nil in case of context missing
           return if subsegment.nil?
-          
-          # X-Ray SDK expects time in seconds with up to nanosecond precision.
-          exponent = get_exponent(transaction.time.to_f)
-          division_factor = 10 ** (exponent - 9)
 
-          subsegment.start_time = transaction.time.to_f / division_factor
+          subsegment.start_time = convert_time_in_seconds(transaction.time.to_f)
           subsegment.sql = sql
-          XRay.recorder.end_subsegment end_time: transaction.end.to_f / division_factor
+          XRay.recorder.end_subsegment end_time: convert_time_in_seconds(transaction.end.to_f)
         end
 
         private
