@@ -28,10 +28,9 @@ module XRay
           subsegment = XRay.recorder.begin_subsegment name, namespace: 'remote'
           # subsegment is nil in case of context missing
           return if subsegment.nil?
-
-          subsegment.start_time = convert_time_in_seconds(transaction.time.to_f)
+          subsegment.start_time = (::Rails::VERSION::MAJOR == 7 and ::Rails::VERSION::MINOR == 1) ? convert_time_in_seconds(transaction.time.to_f) : transaction.time.to_f
           subsegment.sql = sql
-          XRay.recorder.end_subsegment end_time: convert_time_in_seconds(transaction.end.to_f)
+          XRay.recorder.end_subsegment end_time: (::Rails::VERSION::MAJOR == 7 and ::Rails::VERSION::MINOR == 1) ? convert_time_in_seconds(transaction.end.to_f) : transaction.end.to_f
         end
 
         private
