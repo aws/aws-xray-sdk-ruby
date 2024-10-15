@@ -1,3 +1,11 @@
+0.16.0 (2024-09-05)
+-------------------
+* Update - Fix issue: Wrong duration for DB transaction event on ROR 7.1 [PR #96](https://github.com/aws/aws-xray-sdk-ruby/pull/96)
+  
+0.15.0 (2023-10-18)
+-------------------
+* Update - Add ECS metadata allowing cloudwatch-logs to be linked with traces [PR #93](https://github.com/aws/aws-xray-sdk-ruby/pull/93)
+
 0.14.0 (2023-04-05)
 -------------------
 * Added - Allow list TopicArn for SNS PublishBatch request [PR #82](https://github.com/aws/aws-xray-sdk-ruby/pull/82).
