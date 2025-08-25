@@ -1,12 +1,29 @@
 ![Build Status](https://github.com/aws/aws-xray-sdk-ruby/actions/workflows/continuous-build.yml/badge.svg)
 
-### :mega: OpenTelemetry Ruby with AWS X-Ray
+# AWS X-Ray SDK for Ruby (beta)
+
+## :mega: Upcoming Maintenance Mode on February 25, 2026
+
+[The AWS X-Ray SDKs will enter maintenance mode on **`February 25, 2026`**][xray-sdk-daemon-timeline]. During maintenance mode, the X-Ray SDKs and Daemon will only receive critical bug fixes and security updates, and will not be updated to support new features.
+
+We recommend that you migrate to [AWS Distro for OpenTelemetry (ADOT) or OpenTelemetry Instrumentation][xray-otel-migration-docs] to generate traces (through manual or zero-code instrumentation) from your application and send them to AWS X-Ray. OpenTelemetry is the industry-wide standard for tracing instrumentation and observability. It has a large open-source community for support and provides more instrumentations and updates. By adopting an OpenTelemetry solution, developers can leverage the latest services and innovations from AWS CloudWatch.
+
+## :mega: End-of-Support on February 25, 2027
+
+[The AWS X-Ray SDKs will reach end-of-support on **`February 25, 2027`**][xray-sdk-daemon-timeline]. After end-of-support, the X-Ray SDKs will no longer receive updates or releases. Previously published releases will continue to be available via public package managers and the source code will remain on GitHub.
+
+[xray-otel-migration-docs]: https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-migration.html
+[xray-sdk-daemon-timeline]: https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-eos.html
+
+-------------------------------------
+
+### OpenTelemetry Ruby with AWS X-Ray
 
 AWS X-Ray supports using OpenTelemetry Ruby and the AWS Distro for OpenTelemetry (ADOT) Collector to instrument your application and send trace data to X-Ray. The OpenTelemetry SDKs are an industry-wide standard for tracing instrumentation. They provide more instrumentations and have a larger community for support, but may not have complete feature parity with the X-Ray SDKs. See [choosing between the ADOT and X-Ray SDKs](https://docs.aws.amazon.com/xray/latest/devguide/xray-instrumenting-your-app.html#xray-instrumenting-choosing) for more help with choosing between the two. Note that using OpenTelemetry Ruby and ADOT is in public preview, and like this SDK in beta, is not recommended for production applications.
 
 If you want additional features when tracing your Ruby applications, please [open an issue on the OpenTelemetry Ruby Instrumentation repository](https://github.com/open-telemetry/opentelemetry-ruby-contrib/issues/new?labels=enhancement&title=X-Ray%20Compatible%20Feature%20Request).
 
-# AWS X-Ray SDK for Ruby (beta)
+-------------------------------------
 
 ![Screenshot of the AWS X-Ray console](https://raw.githubusercontent.com/aws/aws-xray-sdk-ruby/master/images/example_servicemap.png)
 
