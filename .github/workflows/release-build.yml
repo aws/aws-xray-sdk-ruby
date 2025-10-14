@@ -1,4 +1,6 @@
 name: Release Build
+permissions:
+  contents: write
 
 on:
   push:
