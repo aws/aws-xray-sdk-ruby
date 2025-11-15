@@ -1,0 +1,235 @@
+name: "Daily Security Scan"
+
+on:
+  schedule:
+    # Run twice daily at 6 AM and 6 PM UTC
+    - cron: '0 6,18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan-published-gem:
+    name: Scan Published RubyGem
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Set up Ruby 2.7
+      uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+      with:
+        ruby-version: '2.7'
+
+    - name: Download and analyze published gem
+      continue-on-error: true
+      timeout-minutes: 15
+      run: |
+        # Create temp directory for gem analysis
+        mkdir -p temp-scan
+        cd temp-scan
+        
+        # Get latest version from RubyGems API
+        LATEST_VERSION=$(curl -s "https://rubygems.org/api/v1/gems/aws-xray-sdk.json" | jq -r '.version // "UNKNOWN"')
+        echo "Latest version of aws-xray-sdk: $LATEST_VERSION"
+        
+        if [ "$LATEST_VERSION" != "UNKNOWN" ] && [ "$LATEST_VERSION" != "null" ]; then
+          # Download the gem
+          gem fetch aws-xray-sdk --version $LATEST_VERSION || echo "Failed to download gem"
+          
+          # Extract the gem
+          if ls aws-xray-sdk-*.gem 1> /dev/null 2>&1; then
+            gem unpack aws-xray-sdk-*.gem || echo "Failed to unpack gem"
+            echo "Downloaded and unpacked aws-xray-sdk version $LATEST_VERSION"
+            ls -la
+          fi
+        else
+          echo "Could not determine latest version for aws-xray-sdk"
+        fi
+
+    - name: Run security analysis on published gem
+      continue-on-error: true
+      timeout-minutes: 20
+      run: |
+        cd temp-scan
+        
+        # Install security tools
+        gem install bundler-audit --version 0.9.2
+        gem install ruby-audit --version 2.3.0
+        gem install brakeman --version 6.2.2
+        
+        # Find unpacked gem directory
+        GEM_DIR=$(find . -maxdepth 1 -type d -name "aws-xray-sdk-*" | head -1)
+        
+        if [ -n "$GEM_DIR" ] && [ -d "$GEM_DIR" ]; then
+          echo "Analyzing gem in $GEM_DIR"
+          cd "$GEM_DIR"
+          
+          # Run bundler-audit if Gemfile exists
+          if [ -f "Gemfile" ] || [ -f "Gemfile.lock" ]; then
+            bundle-audit update || echo "Failed to update bundler-audit database"
+            bundle-audit check --format json --output ../bundler-audit-published-results.json || echo "bundler-audit scan completed"
+          fi
+          
+          # Run ruby-audit
+          ruby-audit check > ../ruby-audit-published-results.txt || echo "ruby-audit scan completed"
+          
+          # Run Brakeman on source code
+          if [ -d "lib" ]; then
+            brakeman --format sarif --output ../brakeman-published-results.sarif . || echo "Brakeman scan completed"
+          fi
+          
+          cd ..
+        else
+          echo "No unpacked gem directory found"
+        fi
+
+    - name: Upload Brakeman results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('temp-scan/brakeman-published-results.sarif') != ''
+      with:
+        sarif_file: 'temp-scan/brakeman-published-results.sarif'
+        category: 'daily-scan-brakeman'
+
+    - name: Generate summary report
+      if: always()
+      run: |
+        echo "## Daily Security Scan Results for aws-xray-sdk" >> $GITHUB_STEP_SUMMARY
+        echo "Scan completed at $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "Gem: aws-xray-sdk" >> $GITHUB_STEP_SUMMARY
+        
+        # Check if vulnerabilities were found
+        BUNDLER_AUDIT_FILE="temp-scan/bundler-audit-published-results.json"
+        if [ -f "$BUNDLER_AUDIT_FILE" ]; then
+          BUNDLER_AUDIT_COUNT=$(jq '.results | length' "$BUNDLER_AUDIT_FILE" 2>/dev/null || echo "0")
+          echo "bundler-audit vulnerabilities found: $BUNDLER_AUDIT_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        BRAKEMAN_FILE="temp-scan/brakeman-published-results.sarif"
+        if [ -f "$BRAKEMAN_FILE" ]; then
+          BRAKEMAN_COUNT=$(jq '.runs[0].results | length' "$BRAKEMAN_FILE" 2>/dev/null || echo "0")
+          echo "Brakeman security issues found: $BRAKEMAN_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Check ruby-audit results
+        RUBY_AUDIT_FILE="temp-scan/ruby-audit-published-results.txt"
+        if [ -f "$RUBY_AUDIT_FILE" ]; then
+          if grep -q "vulnerabilities found" "$RUBY_AUDIT_FILE"; then
+            RUBY_AUDIT_COUNT=$(grep -o "[0-9]\+ vulnerabilities found" "$RUBY_AUDIT_FILE" | head -1 | grep -o "[0-9]\+" || echo "0")
+            echo "ruby-audit vulnerabilities found: $RUBY_AUDIT_COUNT" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ruby-audit vulnerabilities found: 0" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+        
+        # Overall status
+        TOTAL_ISSUES=$((${BUNDLER_AUDIT_COUNT:-0} + ${BRAKEMAN_COUNT:-0} + ${RUBY_AUDIT_COUNT:-0}))
+        if [ "$TOTAL_ISSUES" -gt "0" ]; then
+          echo "⚠️ **Action Required**: $TOTAL_ISSUES security issues detected in published gem" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Security tab for detailed findings" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ No security issues found in published gem" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  scan-current-dependencies:
+    name: Scan Current Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Set up Ruby 2.7
+      uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+      with:
+        ruby-version: '2.7'
+        bundler-cache: true
+
+    - name: Run comprehensive dependency scan
+      continue-on-error: true
+      run: |
+        # Install security tools
+        gem install bundler-audit --version 0.9.2
+        gem install ruby-audit --version 2.3.0
+        gem install brakeman --version 6.2.2
+        
+        # Update bundler-audit database
+        bundle-audit update
+        
+        # Run bundler-audit scan
+        bundle-audit check --format json --output bundler-audit-current-results.json || echo "bundler-audit scan completed"
+        
+        # Run ruby-audit scan
+        ruby-audit check > ruby-audit-current-results.txt || echo "ruby-audit scan completed"
+        
+        # Run Brakeman on current codebase
+        brakeman --format sarif --output brakeman-current-results.sarif . || echo "Brakeman scan completed"
+        
+        # Generate current dependency list
+        bundle list > current-gems.txt || echo "Bundle list completed"
+
+    - name: Upload Brakeman current scan results
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('brakeman-current-results.sarif') != ''
+      with:
+        sarif_file: brakeman-current-results.sarif
+        category: 'daily-scan-current-brakeman'
+
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      if: always()
+      with:
+        name: daily-dependency-reports
+        path: |
+          bundler-audit-current-results.json
+          ruby-audit-current-results.txt
+          brakeman-current-results.sarif
+          current-gems.txt
+
+    - name: Generate dependency summary
+      if: always()
+      run: |
+        echo "## Daily Current Dependencies Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "Scan completed at $(date)" >> $GITHUB_STEP_SUMMARY
+        
+        # Count installed gems
+        if [ -f "current-gems.txt" ]; then
+          GEM_COUNT=$(wc -l < current-gems.txt)
+          echo "Gems scanned: $GEM_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # bundler-audit summary
+        if [ -f "bundler-audit-current-results.json" ]; then
+          BUNDLER_AUDIT_VULNS=$(jq '.results | length' bundler-audit-current-results.json 2>/dev/null || echo "0")
+          echo "bundler-audit vulnerabilities: $BUNDLER_AUDIT_VULNS" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # ruby-audit summary
+        if [ -f "ruby-audit-current-results.txt" ]; then
+          if grep -q "vulnerabilities found" ruby-audit-current-results.txt; then
+            RUBY_AUDIT_VULNS=$(grep -o "[0-9]\+ vulnerabilities found" ruby-audit-current-results.txt | head -1 | grep -o "[0-9]\+" || echo "0")
+            echo "ruby-audit vulnerabilities: $RUBY_AUDIT_VULNS" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ruby-audit vulnerabilities: 0" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+        
+        # Brakeman summary
+        if [ -f "brakeman-current-results.sarif" ]; then
+          BRAKEMAN_ISSUES=$(jq '.runs[0].results | length' brakeman-current-results.sarif 2>/dev/null || echo "0")
+          echo "Brakeman security issues: $BRAKEMAN_ISSUES" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Overall status
+        TOTAL_ISSUES=$((${BUNDLER_AUDIT_VULNS:-0} + ${RUBY_AUDIT_VULNS:-0} + ${BRAKEMAN_ISSUES:-0}))
+        if [ "$TOTAL_ISSUES" -gt "0" ]; then
+          echo "⚠️ **Action Required**: $TOTAL_ISSUES security issues detected" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Security tab for detailed findings" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ No security issues found in current dependencies" >> $GITHUB_STEP_SUMMARY
+        fi

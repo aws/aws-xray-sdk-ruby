@@ -1,0 +1,162 @@
+name: "CodeQL Security Analysis"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    # Run CodeQL analysis weekly on Mondays at 2 AM UTC
+    - cron: '0 2 * * 1'
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'ruby' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      with:
+        languages: ${{ matrix.language }}
+        # Override default queries to include security-extended for more comprehensive analysis
+        queries: security-extended,security-and-quality
+
+    - name: Set up Ruby 2.7
+      uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+      with:
+        ruby-version: '2.7'
+        bundler-cache: true
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      with:
+        category: "/language:${{matrix.language}}"
+        upload: false  # Don't upload to avoid conflict with default setup
+
+  dependency-scan:
+    name: Ruby Dependency Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Set up Ruby 2.7
+      uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+      with:
+        ruby-version: '2.7'
+        bundler-cache: true
+
+    - name: Install and run bundler-audit
+      continue-on-error: true
+      run: |
+        # Install bundler-audit for Ruby dependency vulnerability scanning
+        gem install bundler-audit --version 0.9.2
+        
+        # Update vulnerability database
+        bundle-audit update
+        
+        # Run bundler-audit and generate JSON report
+        bundle-audit check --format json --output bundler-audit-results.json || echo "bundler-audit scan completed"
+
+    - name: Install and run ruby-audit
+      continue-on-error: true
+      run: |
+        # Install ruby-audit for comprehensive Ruby security scanning
+        gem install ruby-audit --version 2.3.0
+        
+        # Run ruby-audit
+        ruby-audit check > ruby-audit-results.txt || echo "ruby-audit scan completed"
+
+    - name: Run Brakeman security scanner
+      continue-on-error: true
+      run: |
+        # Install Brakeman for Ruby security analysis
+        gem install brakeman --version 6.2.2
+        
+        # Run Brakeman and generate SARIF
+        brakeman --format sarif --output brakeman-results.sarif . || echo "Brakeman scan completed"
+
+    - name: Upload Brakeman results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('brakeman-results.sarif') != ''
+      with:
+        sarif_file: brakeman-results.sarif
+        category: 'brakeman-security'
+
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      if: always()
+      with:
+        name: dependency-reports
+        path: |
+          bundler-audit-results.json
+          ruby-audit-results.txt
+          brakeman-results.sarif
+
+  security-scan:
+    name: Ruby Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Set up Ruby 2.7
+      uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+      with:
+        ruby-version: '2.7'
+        bundler-cache: true
+
+    - name: Run Semgrep security analysis
+      continue-on-error: true
+      run: |
+        # Install Semgrep
+        python3 -m pip install semgrep==1.88.0
+        
+        # Run Semgrep with Ruby security rules
+        semgrep --config=auto --sarif --output=semgrep-results.sarif . || echo "Semgrep scan completed"
+
+    - name: Run RuboCop security checks
+      continue-on-error: true
+      run: |
+        # Install RuboCop with security extensions
+        gem install rubocop --version 1.69.2
+        gem install rubocop-performance --version 1.23.0
+        gem install rubocop-security --version 0.1.1
+        
+        # Run RuboCop with security-focused checks
+        rubocop --require rubocop-security --format json --out rubocop-results.json . || echo "RuboCop scan completed"
+
+    - name: Upload Semgrep results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('semgrep-results.sarif') != ''
+      with:
+        sarif_file: semgrep-results.sarif
+        category: 'semgrep-security'
+
+    - name: Upload security analysis reports
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      if: always()
+      with:
+        name: security-analysis-reports
+        path: |
+          semgrep-results.sarif
+          rubocop-results.json
