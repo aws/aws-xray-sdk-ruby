@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--False positive: multi_json gem incorrectly matched to json_project:json CPE (CVE-2020-10663 affects the json gem, not multi_json)-->
+    <suppress>
+        <notes><![CDATA[multi_json is a JSON adapter/wrapper gem, not the json gem affected by CVE-2020-10663. See https://nvd.nist.gov/vuln/detail/CVE-2020-10663]]></notes>
+        <filePath regex="true">.*multi_json.*</filePath>
+        <cpe>cpe:/a:json_project:json</cpe>
+    </suppress>
 </suppressions>
