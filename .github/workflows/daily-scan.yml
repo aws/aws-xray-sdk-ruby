@@ -1,7 +1,7 @@
 ## Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 ## SPDX-License-Identifier: Apache-2.0
 # Performs a daily scan of:
-# * The X-Ray Ruby SDK published artifact dependencies, using Trivy
+# * The X-Ray Ruby SDK source code, using Trivy
 # * Project dependencies, using DependencyCheck
 #
 #  Publishes results to CloudWatch Metrics.
@@ -75,33 +75,37 @@ jobs:
           curl -Ls "https://github.com/dependency-check/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip.asc" --output dependency-check.zip.asc
           gpg --verify dependency-check.zip.asc
           unzip dependency-check.zip
-          ./dependency-check/bin/dependency-check.sh --enableExperimental --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "scan-target/"
+          ./dependency-check/bin/dependency-check.sh --enableExperimental --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} --suppression .github/dependency-check-suppressions.xml -s "scan-target/"
 
       - name: Print dependency scan results on failure
         if: ${{ steps.dep_scan.outcome != 'success' }}
         run: less dependency-check-report.html
 
-      - name: Perform high severity scan on published artifact dependencies
+      - name: Perform high severity scan on built artifacts
         if: always()
         id: high_scan_latest
         uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # v0.34.2
         with:
           scan-type: 'fs'
-          scan-ref: 'scan-target/'
+          scan-ref: '.'
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
           scanners: 'vuln'
+        env:
+          TRIVY_IGNOREFILE: .github/trivy/daily-scan.trivyignore.yaml
 
-      - name: Perform low severity scan on published artifact dependencies
+      - name: Perform low severity scan on built artifacts
         if: always()
         id: low_scan_latest
         uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # v0.34.2
         with:
           scan-type: 'fs'
-          scan-ref: 'scan-target/'
+          scan-ref: '.'
           severity: 'MEDIUM,LOW,UNKNOWN'
           exit-code: '1'
           scanners: 'vuln'
+        env:
+          TRIVY_IGNOREFILE: .github/trivy/daily-scan.trivyignore.yaml
 
       - name: Configure AWS Credentials for emitting metrics
         if: always()
