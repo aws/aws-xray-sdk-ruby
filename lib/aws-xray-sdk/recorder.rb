@@ -21,14 +21,14 @@ module XRay
     end
 
     # Begin a segment for the current context. The recorder
-    # only keeps one segment at a time. Create a second one without
+    # only keeps one segment at a time. Creating a second one without
     # closing existing one will overwrite the existing one.
-    # @return [Segment] thew newly created segment.
+    # @return [Segment] the newly created segment.
     def begin_segment(name, trace_id: nil, parent_id: nil, sampled: nil)
       seg_name = name || config.name
       raise SegmentNameMissingError if seg_name.to_s.empty?
 
-      # sampling decision comes from outside has higher precedence.
+      # sampling decision from outside has higher precedence.
       sample = sampled.nil? ? config.sample? : sampled
       if sample
         segment = Segment.new name: seg_name, trace_id: trace_id, parent_id: parent_id
@@ -57,7 +57,7 @@ module XRay
     end
 
     # Begin a new subsegment and add it to be the child of the current active
-    # subsegment or segment. Also tie the new created subsegment to the current context.
+    # subsegment or segment. Also tie the newly created subsegment to the current context.
     # Its sampling decision will follow its parent.
     # @return [Subsegment] the newly created subsegment. It could be `nil` if no active entity
     #   can be found and `context_missing` is set to `LOG_ERROR`.
@@ -96,7 +96,7 @@ module XRay
       else
         context.store_entity entity: entity.parent
       end
-      # check if the entire segment can be send.
+      # check if the entire segment can be sent.
       # If not, stream subsegments when threshold is reached.
       segment = entity.segment
       if segment.ready_to_send?
@@ -127,7 +127,7 @@ module XRay
       end
     end
 
-    # Returns current segment or subsegment that associated to the current context.
+    # Returns current segment or subsegment that is associated to the current context.
     # This is a proxy method to Context class current_entity.
     def current_entity
       context.current_entity

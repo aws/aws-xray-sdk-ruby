@@ -36,7 +36,7 @@ module XRay
         segment = @recorder.begin_segment seg_name, trace_id: header.root, parent_id: header.parent_id,
                                                     sampled: sampled
 
-        # add neccessary http request metadata to the segment
+        # add necessary http request metadata to the segment
         req_meta = extract_request_meta(req)
         segment.merge_http_request request: req_meta unless req_meta.empty?
         begin

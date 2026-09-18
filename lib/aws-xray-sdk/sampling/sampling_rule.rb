@@ -45,7 +45,7 @@ module XRay
       method_match = !http_method || SearchPattern.wildcard_match?(pattern: @method, text: http_method)
       service_match = !service || SearchPattern.wildcard_match?(pattern: @service, text: service)
 
-      # if sampling request contains service type we assmue
+      # if sampling request contains service type we assume
       # the origin (a.k.a AWS plugins are set and effective)
       if sampling_req.key?(:service_type)
         service_type = sampling_req[:service_type]

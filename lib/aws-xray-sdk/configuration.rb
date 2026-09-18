@@ -34,7 +34,7 @@ module XRay
     end
 
     # @param [String] v The default segment name.
-    #   Environment vairable takes higher precedence.
+    #   Environment variable takes higher precedence.
     def name=(v)
       @name = ENV[SEGMENT_NAME_KEY] || v
     end
