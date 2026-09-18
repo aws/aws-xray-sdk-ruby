@@ -51,7 +51,7 @@ module XRay
     # information and sampling rules. It will first check if any
     # custom rule should be applied, if not it falls back to the
     # default sampling rule.
-    # All arugments are extracted from incoming requests by
+    # All arguments are extracted from incoming requests by
     # X-Ray middleware to perform path based sampling.
     def sample_request?(sampling_req)
       sample = sample?

@@ -2,7 +2,7 @@ module XRay
   # custom pattern matching for performance and the SDK use cases.
   module SearchPattern
     # Performs a case-insensitive wildcard match against two strings.
-    # This method works with pseduo-regex chars; specifically ? and * are supported.
+    # This method works with pseudo-regex chars; specifically ? and * are supported.
     # An asterisk (*) represents any combination of characters.
     # A question mark (?) represents any single character.
     # @param [String] pattern The regex-like pattern to be compared against.
@@ -33,7 +33,7 @@ module XRay
       # Loop from the beginning of the pattern
       # case not '*': if text[i]==pattern[j] or pattern[j] is '?',
       # and res[i] is true, set res[i+1] to true, otherwise false.
-      # case '*': since '*' can match any globing, as long as there is a true
+      # case '*': since '*' can match any globbing, as long as there is a true
       # in res before i, all the res[i+1], res[i+2],...,res[textLength]
       # could be true
       res = Array.new(text_len + 1)
