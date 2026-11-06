@@ -11,7 +11,7 @@ permissions:
 jobs:
   smoke-tests:
     name: Run smoke tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 #v2.7.0
@@ -42,7 +42,7 @@ jobs:
       - name: Publish metric on X-Ray Ruby SDK distribution availability
         if: ${{ always() }}
         run: |
-          if [[ "${{ steps.distribution-availability.outcome }}" == "failure" ]]; then
+          if [[ "${{ steps.distribution-availability.outcome }}" != "success" ]]; then
             aws cloudwatch put-metric-data --metric-name XRayRubySDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 1 --timestamp $(date +%s)
           else
             aws cloudwatch put-metric-data --metric-name XRayRubySDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 0 --timestamp $(date +%s)
